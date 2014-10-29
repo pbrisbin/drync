@@ -1,28 +1,31 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Drync.Drive.FileList where
+module Drync.Drive.Item
+    ( FileId
+    , ChildList(..)
+    , Item(..)
+    , root
+    ) where
 
 import Control.Applicative
 import Control.Monad (mzero)
 import Data.Aeson
 import Data.Text (Text)
 import Data.Time (UTCTime)
-import Data.Maybe (listToMaybe)
 
-type ItemId = Text
+type FileId = Text
 
-newtype FileList = FileList [Item] deriving Show
+newtype ChildList = ChildList [FileId]
 
-instance FromJSON FileList where
-    parseJSON (Object o) = FileList
-        <$> (mapM parseJSON =<< o .: "items")
+instance FromJSON ChildList where
+    parseJSON (Object o) = ChildList
+        <$> (mapM (.: "id") =<< o .: "items")
 
     parseJSON _ = mzero
 
 data Item = Item
-    { itemId :: ItemId
+    { itemId :: FileId
     , itemTitle :: Text
     , itemModified :: UTCTime
-    , itemParents :: Maybe ItemId
     }
     deriving (Eq, Show)
 
@@ -31,6 +34,8 @@ instance FromJSON Item where
         <$> o .: "id"
         <*> o .: "title"
         <*> o .: "modifiedDate"
-        <*> (listToMaybe <$> (mapM (.: "id") =<< o .: "parents"))
 
     parseJSON _ = mzero
+
+root :: FileId
+root = "root"
