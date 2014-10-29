@@ -7,16 +7,17 @@ Sync a local directory with Google Drive. Very alpha. Beware.
 ## Eventual Usage
 
 ```
-% drync [FOLDER]
+usage: drync [options]
+options:
+    -p, --profile NAME          Use the named profile
+    -f, --sync-from DIR         Sync from the given directory
+    -t, --sync-to FOLDER        Sync to the given folder
 ```
-
-Sync the current directory with `FOLDER` on Google Drive. If not given, `FOLDER`
-defaults to "root", syncing the current directory with the entire Drive.
 
 ## Working So Far
 
 - OAuth2 negotiation and token auth
-- Pulling folder contents and file information from the Drive API
+- Printing out required actions, non-recursively
 
 ## Development / Installation
 
