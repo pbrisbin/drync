@@ -4,49 +4,20 @@
 
 Sync a local directory with Google Drive. Very alpha. Beware.
 
-## Development
-
-- Go to Google Developers Console
-- Create an App and get its Client Id and Secret
-- Enable the Drive API
-- Create `src/Drync/Client.sh` with the following contents:
-
-```haskell
-module Drync.Client
-    ( OAuth2Client(..)
-    , client
-    ) where
-
-import Network.Google.OAuth2 (OAuth2Client(..))
-
-client :: OAuth2Client
-client = OAuth2Client
-    { clientId = "your-client-id"
-    , clientSecret = "your-client-secret"
-    }
-```
-
-- Initialize a sandbox
+## Eventual Usage
 
 ```
-% cabal sandbox init
+% drync [FOLDER]
 ```
 
-- Clone my fork of handa-gdata and add it as a source
+Sync the current directory with `FOLDER` on Google Drive. If not given, `FOLDER`
+defaults to "root", syncing the current directory with the entire Drive.
 
-```
-% cd .. && git clone https://github.com/pbrisbin/hgdata
-% cd drync && cabal sandbox add-source ../hgdata
-```
+## Working So Far
 
-- Install
+- OAuth2 negotiation and token auth
+- Pulling folder contents and file information from the Drive API
 
-```
-% cabal install --dependencies-only --enable-tests
-```
+## Development / Installation
 
-- Run
-
-```
-% cabal run
-```
+Run `bin/setup` to get started.

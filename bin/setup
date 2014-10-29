@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# pbrisbin 2014 - drync setup script
+#
+###
+info() { printf "==> %s\n" "$*"; }
+
+setup_hgdata() {
+  if [ ! -d ./hgdata ]; then
+    info "Cloning handa-gdata fork..."
+    git clone https://github.com/pbrisbin/hgdata
+  else
+    info "Updating handa-gdata fork..."
+    cd hgdata && git pull
+  fi
+}
+
+(cd .. && setup_hgdata)
+
+if [ ! -d ./.cabal-sandbox ]; then
+  info "Creating cabal sandbox..."
+  cabal sandbox init
+  cabal sandbox add-source ../hgdata
+fi
+
+info "Installing dependencies..."
+cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
+
+if [ ! -f src/Drync/Client.hs ]; then
+  info "Writing Client.hs..."
+  cat > src/Drync/Client.hs <<EOF
+module Drync.Client
+    ( OAuth2Client(..)
+    , client
+    ) where
+
+import Network.Google.OAuth2 (OAuth2Client(..))
+
+client :: OAuth2Client
+client = OAuth2Client
+    { clientId = "your-client-id"
+    , clientSecret = "your-client-secret"
+    }
+EOF
+fi
+
+cat <<EOF
+
+Don't forget to
+
+- Go to Google Developers Console
+- Create an App and get its Client Id and Secret
+- Enable the Drive API
+- Edit src/Drync/Client.hs with your credentials
+
+EOF
