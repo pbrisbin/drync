@@ -1,0 +1,45 @@
+Name:                   drync
+Version:                0.0.0
+Author:                 Pat Brisbin <pbrisbin@gmail.com>
+Maintainer:             Pat Brisbin <pbrisbin@gmail.com>
+License:                MIT
+License-File:           LICENSE
+-- Synopsis:               Short description, appears in Hackage listings
+-- Description:            Long explanation, appears at top of project page
+Cabal-Version:          >= 1.10
+Build-Type:             Simple
+
+Library
+  Default-Language:     Haskell2010
+  HS-Source-Dirs:       src
+  GHC-Options:          -Wall
+  Exposed-Modules:      Drync.Client
+                      , Drync.Request
+                      , Drync.Token
+  Build-Depends:        base            >= 4            && < 5
+                      , handa-gdata     >= 0.6.9.2      && < 0.7
+                      , http-conduit    >= 2.1          && < 2.2
+
+Test-Suite spec
+  Type:                 exitcode-stdio-1.0
+  Default-Language:     Haskell2010
+  Hs-Source-Dirs:       test
+  Ghc-Options:          -Wall
+  Main-Is:              Spec.hs
+  Build-Depends:        base
+                      , drync
+                      , hspec
+
+Executable drync
+  Default-Language:     Haskell2010
+  Main-Is:              main.hs
+  GHC-Options:          -Wall
+  Build-Depends:        base
+                      , drync
+                      , bytestring
+                      , filepath
+                      , xdg-basedir
+
+Source-Repository head
+  Type:                 git
+  Location:             https://github.com/pbrisbin/drync
