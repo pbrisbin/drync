@@ -15,6 +15,7 @@ Library
   GHC-Options:          -Wall
   Exposed-Modules:      Drync
                       , Drync.Client
+                      , Drync.Options
                       , Drync.Token
                       , Drync.Drive.Api
                       , Drync.Drive.Item
