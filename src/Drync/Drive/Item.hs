@@ -26,6 +26,7 @@ data Item = Item
     { itemId :: FileId
     , itemTitle :: Text
     , itemModified :: UTCTime
+    , itemDownloadUrl :: Maybe Text
     }
     deriving (Eq, Show)
 
@@ -34,6 +35,7 @@ instance FromJSON Item where
         <$> o .: "id"
         <*> o .: "title"
         <*> o .: "modifiedDate"
+        <*> o .:? "downloadUrl"
 
     parseJSON _ = mzero
 

@@ -2,46 +2,33 @@
 module Main where
 
 import Data.Monoid ((<>))
-import Data.Text (Text)
+import System.Directory (getCurrentDirectory)
 import System.Environment.XDG.BaseDir (getUserCacheDir)
 import System.FilePath ((</>))
-import System.IO (hPutStrLn, stderr)
 
 import Drync.Client
 import Drync.Token
-
-import Drync.Drive.Api
 import Drync.Drive.Item
-
-import qualified Data.Text.IO as T
+import Drync.Drive.SyncPlan
 
 main :: IO ()
 main = do
-    let profile = "default" -- TODO: options
+    -- TODO: options
+    let profile = "default"
+        directory = root
+        debug = True
 
-    dir <- getUserCacheDir appName
-    tokens <- generateTokens False client $ dir </> profile <> ".token"
+    dir <- getCurrentDirectory
+    cdir <- getUserCacheDir appName
+    tokens <- generateTokens False client $ cdir </> profile <> ".token"
 
-    showDirectory tokens "/" root
+    plan <- createSyncPlan $ do
+        processRemoteFiles tokens directory
+        processLocalFiles dir
 
-showDirectory :: OAuth2Tokens -> Text -> FileId -> IO ()
-showDirectory tokens parent fileId = do
-    mitem <- getFile tokens fileId
-
-    case mitem of
-        Nothing -> return ()
-        Just item -> do
-            let title = itemTitle item
-                filename = parent <> title
-
-            T.putStrLn filename
-
-            children <- getChildren tokens fileId
-
-            mapM_ (showDirectory tokens (filename <> "/")) children
+    if debug
+        then printSyncPlan plan
+        else executeSyncPlan plan
 
 appName :: String
 appName = "drync"
-
-err :: String -> IO ()
-err = hPutStrLn stderr

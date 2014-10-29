@@ -2,7 +2,10 @@
 --
 -- TODO: Exception handling
 --
-module Drync.Drive.Api where
+module Drync.Drive.Api
+    ( getFile
+    , getChildren
+    ) where
 
 import Data.Aeson (decode)
 import Data.Monoid ((<>))
@@ -20,6 +23,7 @@ getFile :: OAuth2Tokens -> FileId -> IO (Maybe Item)
 getFile tokens fileId = fmap decode $ simpleHttp $ baseUrl <>
     "/files/" <> T.unpack fileId <> "?access_token=" <> accessToken tokens
 
+-- | Does not support more than 1000 files per folder
 getChildren :: OAuth2Tokens -> FileId -> IO [FileId]
 getChildren tokens fileId = do
     mlist <- fmap decode $ simpleHttp $ baseUrl <>
