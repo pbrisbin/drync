@@ -18,12 +18,12 @@ spec = do
             Just (FileList items) <- fmap decode $ BS.readFile "test/files.json"
 
             map toItemIds items `shouldBe`
-                [ ("0B14QfGpVCT4KamR4cmp4Wnl2XzQ", [])
-                , ("0B93xZ4-ZE27INnIxSU5iRXlUVWM", ["0B14QfGpVCT4KamR4cmp4Wnl2XzQ"])
-                , ("0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB", ["0B93xZ4-ZE27INnIxSU5iRXlUVWM"])
-                , ("0B93xZ4-ZE27IdlJsUDUwRGJoNDA", ["0B93xZ4-ZE27ITVV0MEhwMlRkTmc"])
-                , ("0B93xZ4-ZE27INGcxMU1VamtBbVE", ["0B93xZ4-ZE27ITVV0MEhwMlRkTmc"])
+                [ ("0B14QfGpVCT4KamR4cmp4Wnl2XzQ", Nothing)
+                , ("0B93xZ4-ZE27INnIxSU5iRXlUVWM", Just "0B14QfGpVCT4KamR4cmp4Wnl2XzQ")
+                , ("0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB", Just "0B93xZ4-ZE27INnIxSU5iRXlUVWM")
+                , ("0B93xZ4-ZE27IdlJsUDUwRGJoNDA", Just "0B93xZ4-ZE27ITVV0MEhwMlRkTmc")
+                , ("0B93xZ4-ZE27INGcxMU1VamtBbVE", Just "0B93xZ4-ZE27ITVV0MEhwMlRkTmc")
                 ]
   where
-    toItemIds :: Item -> (ItemId, [ItemId])
+    toItemIds :: Item -> (ItemId, Maybe ItemId)
     toItemIds Item{..} = (itemId, itemParents)

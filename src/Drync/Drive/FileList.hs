@@ -6,6 +6,7 @@ import Control.Monad (mzero)
 import Data.Aeson
 import Data.Text (Text)
 import Data.Time (UTCTime)
+import Data.Maybe (listToMaybe)
 
 type ItemId = Text
 
@@ -18,10 +19,10 @@ instance FromJSON FileList where
     parseJSON _ = mzero
 
 data Item = Item
-    { itemId :: !ItemId
-    , itemTitle :: !Text
-    , itemModified :: !UTCTime
-    , itemParents :: ![ItemId]
+    { itemId :: ItemId
+    , itemTitle :: Text
+    , itemModified :: UTCTime
+    , itemParents :: Maybe ItemId
     }
     deriving (Eq, Show)
 
@@ -30,6 +31,6 @@ instance FromJSON Item where
         <$> o .: "id"
         <*> o .: "title"
         <*> o .: "modifiedDate"
-        <*> (mapM (.: "id") =<< o .: "parents")
+        <*> (listToMaybe <$> (mapM (.: "id") =<< o .: "parents"))
 
     parseJSON _ = mzero
