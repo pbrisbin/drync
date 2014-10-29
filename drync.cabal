@@ -14,8 +14,8 @@ Library
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
   Exposed-Modules:      Drync.Client
-                      , Drync.Request
                       , Drync.Token
+                      , Drync.Drive.Api
                       , Drync.Drive.FileList
   Build-Depends:        base            >= 4            && < 5
                       , aeson           >= 0.8          && < 0.9
