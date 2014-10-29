@@ -16,9 +16,13 @@ Library
   Exposed-Modules:      Drync.Client
                       , Drync.Request
                       , Drync.Token
+                      , Drync.Drive.FileList
   Build-Depends:        base            >= 4            && < 5
+                      , aeson           >= 0.8          && < 0.9
                       , handa-gdata     >= 0.6.9.2      && < 0.7
                       , http-conduit    >= 2.1          && < 2.2
+                      , text                               < 2.0
+                      , time
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
@@ -28,6 +32,8 @@ Test-Suite spec
   Main-Is:              Spec.hs
   Build-Depends:        base
                       , drync
+                      , bytestring
+                      , aeson
                       , hspec
 
 Executable drync

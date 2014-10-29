@@ -1,0 +1,415 @@
+{
+ "kind": "drive#fileList",
+ "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/gUFoIbx3ISdC3FX_x6k3bG6lgLY\"",
+ "selfLink": "https://www.googleapis.com/drive/v2/files",
+ "nextPageToken": "3|0|f__-u_HwwrwwQjkzeFo0LVpFMjdJTlhCRGRtVktjMDF4TTFVAA",
+ "nextLink": "https://www.googleapis.com/drive/v2/files?pageToken=3%7C0%7Cf__-u_HwwrwwQjkzeFo0LVpFMjdJTlhCRGRtVktjMDF4TTFVAA",
+ "items": [
+  {
+   "kind": "drive#file",
+   "id": "0B14QfGpVCT4KamR4cmp4Wnl2XzQ",
+   "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/MTQxNDUwMTc4NjU5NQ\"",
+   "selfLink": "https://www.googleapis.com/drive/v2/files/0B14QfGpVCT4KamR4cmp4Wnl2XzQ",
+   "alternateLink": "https://docs.google.com/folderview?id=0B14QfGpVCT4KamR4cmp4Wnl2XzQ&usp=drivesdk",
+   "iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_collection_list.png",
+   "title": "Maddie Walk Invoices - Doggie Trails",
+   "mimeType": "application/vnd.google-apps.folder",
+   "labels": {
+    "starred": false,
+    "hidden": false,
+    "trashed": false,
+    "restricted": false,
+    "viewed": true
+   },
+   "createdDate": "2014-03-10T13:09:43.821Z",
+   "modifiedDate": "2014-10-28T13:09:46.595Z",
+   "modifiedByMeDate": "2014-10-28T13:09:46.595Z",
+   "lastViewedByMeDate": "2014-09-17T18:22:04.563Z",
+   "markedViewedByMeDate": "2014-06-27T12:59:47.860Z",
+   "sharedWithMeDate": "2014-03-10T13:10:57.473Z",
+   "version": "4239",
+   "sharingUser": {
+    "kind": "drive#user",
+    "displayName": "Jackie Ryan",
+    "picture": {
+     "url": "https://lh5.googleusercontent.com/-pQjNKqJCfGA/AAAAAAAAAAI/AAAAAAAAAEc/nRlJHY5TlEM/s64/photo.jpg"
+    },
+    "isAuthenticatedUser": false,
+    "permissionId": "17005351716565321289",
+    "emailAddress": "x@gmail.com"
+   },
+   "parents": [],
+   "userPermission": {
+    "kind": "drive#permission",
+    "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/JJBVxaSolzwrDrjgJvxXsD4CoqQ\"",
+    "id": "me",
+    "selfLink": "https://www.googleapis.com/drive/v2/files/0B14QfGpVCT4KamR4cmp4Wnl2XzQ/permissions/me",
+    "role": "writer",
+    "type": "user"
+   },
+   "quotaBytesUsed": "0",
+   "ownerNames": [
+    "Jackie Ryan"
+   ],
+   "owners": [
+    {
+     "kind": "drive#user",
+     "displayName": "Jackie Ryan",
+     "picture": {
+      "url": "https://lh5.googleusercontent.com/-pQjNKqJCfGA/AAAAAAAAAAI/AAAAAAAAAEc/nRlJHY5TlEM/s64/photo.jpg"
+     },
+     "isAuthenticatedUser": false,
+     "permissionId": "17005351716565321289",
+     "emailAddress": "x@gmail.com"
+    }
+   ],
+   "lastModifyingUserName": "Pat Brisbin",
+   "lastModifyingUser": {
+    "kind": "drive#user",
+    "displayName": "Pat Brisbin",
+    "picture": {
+     "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+    },
+    "isAuthenticatedUser": true,
+    "permissionId": "02385536617838751719",
+    "emailAddress": "pbrisbin@gmail.com"
+   },
+   "editable": true,
+   "copyable": false,
+   "writersCanShare": true,
+   "shared": true,
+   "appDataContents": false
+  },
+  {
+   "kind": "drive#file",
+   "id": "0B93xZ4-ZE27INnIxSU5iRXlUVWM",
+   "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/MTQxNDUwMTc4NTY2NA\"",
+   "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INnIxSU5iRXlUVWM",
+   "alternateLink": "https://docs.google.com/folderview?id=0B93xZ4-ZE27INnIxSU5iRXlUVWM&usp=drivesdk",
+   "iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_collection_list.png",
+   "title": "paid",
+   "mimeType": "application/vnd.google-apps.folder",
+   "labels": {
+    "starred": false,
+    "hidden": false,
+    "trashed": false,
+    "restricted": false,
+    "viewed": true
+   },
+   "createdDate": "2014-03-08T14:24:52.349Z",
+   "modifiedDate": "2014-10-28T13:09:45.664Z",
+   "modifiedByMeDate": "2014-10-28T13:09:45.664Z",
+   "lastViewedByMeDate": "2014-03-10T13:44:24.425Z",
+   "markedViewedByMeDate": "2014-03-10T13:44:24.342Z",
+   "version": "34582",
+   "parents": [
+    {
+     "kind": "drive#parentReference",
+     "id": "0B14QfGpVCT4KamR4cmp4Wnl2XzQ",
+     "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INnIxSU5iRXlUVWM/parents/0B14QfGpVCT4KamR4cmp4Wnl2XzQ",
+     "parentLink": "https://www.googleapis.com/drive/v2/files/0B14QfGpVCT4KamR4cmp4Wnl2XzQ",
+     "isRoot": false
+    }
+   ],
+   "userPermission": {
+    "kind": "drive#permission",
+    "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/5JPesoEQn5el17tnd56A2Hnjrtw\"",
+    "id": "me",
+    "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INnIxSU5iRXlUVWM/permissions/me",
+    "role": "owner",
+    "type": "user"
+   },
+   "quotaBytesUsed": "0",
+   "ownerNames": [
+    "Pat Brisbin"
+   ],
+   "owners": [
+    {
+     "kind": "drive#user",
+     "displayName": "Pat Brisbin",
+     "picture": {
+      "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+     },
+     "isAuthenticatedUser": true,
+     "permissionId": "02385536617838751719",
+     "emailAddress": "pbrisbin@gmail.com"
+    }
+   ],
+   "lastModifyingUserName": "Pat Brisbin",
+   "lastModifyingUser": {
+    "kind": "drive#user",
+    "displayName": "Pat Brisbin",
+    "picture": {
+     "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+    },
+    "isAuthenticatedUser": true,
+    "permissionId": "02385536617838751719",
+    "emailAddress": "pbrisbin@gmail.com"
+   },
+   "editable": true,
+   "copyable": false,
+   "writersCanShare": true,
+   "shared": true,
+   "appDataContents": false
+  },
+  {
+   "kind": "drive#file",
+   "id": "0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB",
+   "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/MTQxNDM1OTI4MDM5NA\"",
+   "selfLink": "https://www.googleapis.com/drive/v2/files/0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB",
+   "webContentLink": "https://docs.google.com/uc?id=0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB&export=download",
+   "alternateLink": "https://docs.google.com/file/d/0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB/edit?usp=drivesdk",
+   "iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_10_word_list.png",
+   "thumbnailLink": "https://lh4.googleusercontent.com/2CuInW94vwSEFWOn84v-F8j1CbS4TpWYm4zQZBhrhTWIsKgMf-b2Tzh7oHtYk4WuLQUJ_sRslDcl2W66SwmBgW9w-Oo=s220",
+   "title": "madison_10:24_inv_63.docx",
+   "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+   "labels": {
+    "starred": false,
+    "hidden": false,
+    "trashed": false,
+    "restricted": false,
+    "viewed": false
+   },
+   "createdDate": "2014-10-26T15:29:04.000Z",
+   "modifiedDate": "2014-10-26T21:34:40.394Z",
+   "markedViewedByMeDate": "1970-01-01T00:00:00.000Z",
+   "version": "4235",
+   "parents": [
+    {
+     "kind": "drive#parentReference",
+     "id": "0B93xZ4-ZE27INnIxSU5iRXlUVWM",
+     "selfLink": "https://www.googleapis.com/drive/v2/files/0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB/parents/0B93xZ4-ZE27INnIxSU5iRXlUVWM",
+     "parentLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INnIxSU5iRXlUVWM",
+     "isRoot": false
+    }
+   ],
+   "downloadUrl": "https://doc-00-0s-docs.googleusercontent.com/docs/securesc/4nn7itnu5blv3mfd4pnfkn6mu1akret1/rg8835b9f0fklbk4ue0b47t9p76f53p5/1414540800000/13058876669334088843/02385536617838751719/0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB?e=download&gd=true",
+   "userPermission": {
+    "kind": "drive#permission",
+    "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/C5hAsEdRmmi6547YPvRmfoFm9ds\"",
+    "id": "me",
+    "selfLink": "https://www.googleapis.com/drive/v2/files/0B14QfGpVCT4KdEwxbWp2Y0ZaNTVGMHJMNmY4SzlGallKVGxB/permissions/me",
+    "role": "writer",
+    "type": "user"
+   },
+   "originalFilename": "madison_10:24_inv_63.docx",
+   "fileExtension": "docx",
+   "md5Checksum": "28bfa25b9ebee10e89bbbf34b67635fe",
+   "fileSize": "73108",
+   "quotaBytesUsed": "0",
+   "ownerNames": [
+    "Jackie Ryan"
+   ],
+   "owners": [
+    {
+     "kind": "drive#user",
+     "displayName": "Jackie Ryan",
+     "picture": {
+      "url": "https://lh5.googleusercontent.com/-pQjNKqJCfGA/AAAAAAAAAAI/AAAAAAAAAEc/nRlJHY5TlEM/s64/photo.jpg"
+     },
+     "isAuthenticatedUser": false,
+     "permissionId": "17005351716565321289",
+     "emailAddress": "x@gmail.com"
+    }
+   ],
+   "lastModifyingUserName": "Jackie Ryan",
+   "lastModifyingUser": {
+    "kind": "drive#user",
+    "displayName": "Jackie Ryan",
+    "picture": {
+     "url": "https://lh5.googleusercontent.com/-pQjNKqJCfGA/AAAAAAAAAAI/AAAAAAAAAEc/nRlJHY5TlEM/s64/photo.jpg"
+    },
+    "isAuthenticatedUser": false,
+    "permissionId": "17005351716565321289",
+    "emailAddress": "x@gmail.com"
+   },
+   "editable": true,
+   "copyable": true,
+   "writersCanShare": true,
+   "shared": true,
+   "appDataContents": false,
+   "headRevisionId": "0B14QfGpVCT4KNEpSdCtDaDZTMnpIdlFROHB4MVBiVC9nOUVvPQ"
+  },
+  {
+   "kind": "drive#file",
+   "id": "0B93xZ4-ZE27IdlJsUDUwRGJoNDA",
+   "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/MTQxNDM1NzE0MDI5Mw\"",
+   "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27IdlJsUDUwRGJoNDA",
+   "webContentLink": "https://docs.google.com/uc?id=0B93xZ4-ZE27IdlJsUDUwRGJoNDA&export=download",
+   "alternateLink": "https://docs.google.com/file/d/0B93xZ4-ZE27IdlJsUDUwRGJoNDA/edit?usp=drivesdk",
+   "iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_image_list.png",
+   "thumbnailLink": "https://lh3.googleusercontent.com/v5k1A6oju2oiF3QdwpZjNqYbAijkKHYHAP1D8uuymwVZDAeOHdjG_Lr8RfRZLVc4G1iNrw=s220",
+   "title": "family_photo.jpg",
+   "mimeType": "image/jpeg",
+   "labels": {
+    "starred": false,
+    "hidden": false,
+    "trashed": false,
+    "restricted": false,
+    "viewed": false
+   },
+   "createdDate": "2014-10-26T20:59:00.293Z",
+   "modifiedDate": "2014-10-26T20:59:00.293Z",
+   "modifiedByMeDate": "2014-10-26T20:59:00.293Z",
+   "markedViewedByMeDate": "1970-01-01T00:00:00.000Z",
+   "version": "34553",
+   "parents": [
+    {
+     "kind": "drive#parentReference",
+     "id": "0B93xZ4-ZE27ITVV0MEhwMlRkTmc",
+     "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27IdlJsUDUwRGJoNDA/parents/0B93xZ4-ZE27ITVV0MEhwMlRkTmc",
+     "parentLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27ITVV0MEhwMlRkTmc",
+     "isRoot": false
+    }
+   ],
+   "downloadUrl": "https://doc-0c-0s-docs.googleusercontent.com/docs/securesc/4nn7itnu5blv3mfd4pnfkn6mu1akret1/kal1sd28gtq86m4e6uu0auiujp3qv9t8/1414540800000/13058876669334088843/02385536617838751719/0B93xZ4-ZE27IdlJsUDUwRGJoNDA?e=download&gd=true",
+   "userPermission": {
+    "kind": "drive#permission",
+    "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/hYs_MI9MNjUjGxNYq7M3fOmPr7Q\"",
+    "id": "me",
+    "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27IdlJsUDUwRGJoNDA/permissions/me",
+    "role": "owner",
+    "type": "user"
+   },
+   "originalFilename": "family_photo.jpg",
+   "fileExtension": "jpg",
+   "md5Checksum": "873d4f876cf26c7973fd1752e1dbcd61",
+   "fileSize": "364225",
+   "quotaBytesUsed": "364225",
+   "ownerNames": [
+    "Pat Brisbin"
+   ],
+   "owners": [
+    {
+     "kind": "drive#user",
+     "displayName": "Pat Brisbin",
+     "picture": {
+      "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+     },
+     "isAuthenticatedUser": true,
+     "permissionId": "02385536617838751719",
+     "emailAddress": "pbrisbin@gmail.com"
+    }
+   ],
+   "lastModifyingUserName": "Pat Brisbin",
+   "lastModifyingUser": {
+    "kind": "drive#user",
+    "displayName": "Pat Brisbin",
+    "picture": {
+     "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+    },
+    "isAuthenticatedUser": true,
+    "permissionId": "02385536617838751719",
+    "emailAddress": "pbrisbin@gmail.com"
+   },
+   "editable": true,
+   "copyable": true,
+   "writersCanShare": true,
+   "shared": false,
+   "appDataContents": false,
+   "headRevisionId": "0B93xZ4-ZE27INVVSUFgrZ2FIT1U3dlJTTGh1enNDV2t6Y3VjPQ",
+   "imageMediaMetadata": {
+    "width": 1920,
+    "height": 1080,
+    "rotation": 0,
+    "date": "2014:09:21 22:36:49",
+    "cameraMake": "SAMSUNG",
+    "cameraModel": "SCH-I545",
+    "exposureTime": 0.25,
+    "aperture": 2.45,
+    "focalLength": 1.85,
+    "isoSpeed": 800,
+    "meteringMode": "CenterWeightedAverage",
+    "sensor": "One-chip color area",
+    "exposureMode": "Auto",
+    "colorSpace": "sRGB",
+    "whiteBalance": "Auto",
+    "exposureBias": 0.0,
+    "maxApertureValue": 2.59
+   }
+  },
+  {
+   "kind": "drive#file",
+   "id": "0B93xZ4-ZE27INGcxMU1VamtBbVE",
+   "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/MTQxNDM1NzEzODQ0Mw\"",
+   "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INGcxMU1VamtBbVE",
+   "webContentLink": "https://docs.google.com/uc?id=0B93xZ4-ZE27INGcxMU1VamtBbVE&export=download",
+   "alternateLink": "https://docs.google.com/file/d/0B93xZ4-ZE27INGcxMU1VamtBbVE/edit?usp=drivesdk",
+   "iconLink": "https://ssl.gstatic.com/docs/doclist/images/icon_11_image_list.png",
+   "thumbnailLink": "https://lh3.googleusercontent.com/WB2vQ4AnsXNsmDHYZ6vU0bIGS0hX18U0YigfdCqDeRWyvosk2gZ1jAWa1B-jJ9AtLfUeyg=s220",
+   "title": "evergreens.png",
+   "mimeType": "image/png",
+   "labels": {
+    "starred": false,
+    "hidden": false,
+    "trashed": false,
+    "restricted": false,
+    "viewed": false
+   },
+   "createdDate": "2014-10-26T20:58:58.443Z",
+   "modifiedDate": "2014-10-26T20:58:58.443Z",
+   "modifiedByMeDate": "2014-10-26T20:58:58.443Z",
+   "markedViewedByMeDate": "1970-01-01T00:00:00.000Z",
+   "version": "34555",
+   "parents": [
+    {
+     "kind": "drive#parentReference",
+     "id": "0B93xZ4-ZE27ITVV0MEhwMlRkTmc",
+     "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INGcxMU1VamtBbVE/parents/0B93xZ4-ZE27ITVV0MEhwMlRkTmc",
+     "parentLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27ITVV0MEhwMlRkTmc",
+     "isRoot": false
+    }
+   ],
+   "downloadUrl": "https://doc-0s-0s-docs.googleusercontent.com/docs/securesc/4nn7itnu5blv3mfd4pnfkn6mu1akret1/36tvck86pd1fg66onvjph8po66j0farn/1414540800000/13058876669334088843/02385536617838751719/0B93xZ4-ZE27INGcxMU1VamtBbVE?e=download&gd=true",
+   "userPermission": {
+    "kind": "drive#permission",
+    "etag": "\"zyC8bkiH7Ao6tgclLWg5GHEYlAM/TOY9pcM1gcC8yDPisQfqACfaTGs\"",
+    "id": "me",
+    "selfLink": "https://www.googleapis.com/drive/v2/files/0B93xZ4-ZE27INGcxMU1VamtBbVE/permissions/me",
+    "role": "owner",
+    "type": "user"
+   },
+   "originalFilename": "evergreens.png",
+   "fileExtension": "png",
+   "md5Checksum": "10babdfcad933c8074ad341a52e04ff7",
+   "fileSize": "474413",
+   "quotaBytesUsed": "474413",
+   "ownerNames": [
+    "Pat Brisbin"
+   ],
+   "owners": [
+    {
+     "kind": "drive#user",
+     "displayName": "Pat Brisbin",
+     "picture": {
+      "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+     },
+     "isAuthenticatedUser": true,
+     "permissionId": "02385536617838751719",
+     "emailAddress": "pbrisbin@gmail.com"
+    }
+   ],
+   "lastModifyingUserName": "Pat Brisbin",
+   "lastModifyingUser": {
+    "kind": "drive#user",
+    "displayName": "Pat Brisbin",
+    "picture": {
+     "url": "https://lh3.googleusercontent.com/-C3HzUqjGTlM/AAAAAAAAAAI/AAAAAAAAFC4/ZKYq7h-Lbx8/s64/photo.jpg"
+    },
+    "isAuthenticatedUser": true,
+    "permissionId": "02385536617838751719",
+    "emailAddress": "pbrisbin@gmail.com"
+   },
+   "editable": true,
+   "copyable": true,
+   "writersCanShare": true,
+   "shared": false,
+   "appDataContents": false,
+   "headRevisionId": "0B93xZ4-ZE27IUTg5TW00b3RGZnBmQUhCYnlUVTNkb3VhNkYwPQ",
+   "imageMediaMetadata": {
+    "width": 542,
+    "height": 667
+   }
+  }
+ ]
+}
