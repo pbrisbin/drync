@@ -1,5 +1,7 @@
 # drync: Google Drive Sync
 
+![drynk](images/boozetime.gif)
+
 Sync a local directory with Google Drive. Very alpha. Beware.
 
 ## Development
