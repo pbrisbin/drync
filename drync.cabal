@@ -13,13 +13,16 @@ Library
   Default-Language:     Haskell2010
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
-  Exposed-Modules:      Drync.Client
+  Exposed-Modules:      Drync
+                      , Drync.Client
                       , Drync.Token
                       , Drync.Drive.Api
                       , Drync.Drive.Item
   Build-Depends:        base            >= 4            && < 5
+                      , HTTP            >= 4000.2       && < 4000.3
                       , aeson           >= 0.8          && < 0.9
                       , containers
+                      , directory
                       , handa-gdata     >= 0.6.9.2      && < 0.7
                       , http-conduit    >= 2.1          && < 2.2
                       , mtl

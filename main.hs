@@ -1,41 +1,48 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 module Main where
 
 import Data.Monoid ((<>))
 import Data.Text (Text)
-import System.Directory (getCurrentDirectory)
 import System.Environment.XDG.BaseDir (getUserCacheDir)
 import System.FilePath ((</>))
 
+import Drync
 import Drync.Client
 import Drync.Token
 import Drync.Drive.Api
-import Drync.Drive.Item
+
+data Options = Options
+    { oProfile :: String
+    , oSyncFrom :: FilePath
+    , oSyncTo :: Text
+    }
 
 main :: IO ()
 main = do
-    -- TODO: options
-    let profile = "default"
-        folder = root
+    options <- getOptions
 
-    cdir <- getUserCacheDir appName
-    tokens <- generateTokens False client $ cdir </> profile <> ".token"
+    file <- tokenFile $ oProfile options
+    tokens <- generateTokens False client file
 
-    mtop <- getFile tokens folder
+    let run = drync tokens $ oSyncFrom options
 
-    case mtop of
-        Nothing -> return ()
-        Just top -> syncFolder tokens "/" top
+    maybe notFound run =<< getFolder tokens (oSyncTo options)
 
-syncFolder :: OAuth2Tokens -> Text -> Item -> IO ()
-syncFolder tokens prefix Item{..} = do
-    let title = prefix <> itemTitle
-        prefix' = title <> "/"
-
-    print title
-
-    mapM_ (syncFolder tokens prefix') =<< getChildren tokens itemId
+-- Sample options for testing
+getOptions :: IO Options
+getOptions = return Options
+    { oProfile = "default"
+    , oSyncFrom = "/home/patrick/Downloads"
+    , oSyncTo = "Downloads"
+    }
 
 appName :: String
 appName = "drync"
+
+tokenFile :: String -> IO FilePath
+tokenFile profile = do
+    cdir <- getUserCacheDir appName
+    return $ cdir </> profile <> ".token"
+
+notFound :: IO ()
+notFound = putStrLn "error: remote sync-to folder not found"

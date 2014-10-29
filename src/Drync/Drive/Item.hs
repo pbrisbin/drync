@@ -4,12 +4,12 @@ module Drync.Drive.Item
     , Items(..)
     , Item(..)
     , unTrashed
-    , root
     ) where
 
 import Control.Applicative
 import Control.Monad (mzero)
 import Data.Aeson
+import Data.Maybe (listToMaybe)
 import Data.Text (Text)
 import Data.Time (UTCTime)
 
@@ -27,6 +27,7 @@ data Item = Item
     { itemId :: FileId
     , itemTitle :: Text
     , itemModified :: UTCTime
+    , itemParent :: Maybe FileId
     , itemTrashed :: Bool
     , itemDownloadUrl :: Maybe Text
     }
@@ -37,6 +38,7 @@ instance FromJSON Item where
         <$> o .: "id"
         <*> o .: "title"
         <*> o .: "modifiedDate"
+        <*> (listToMaybe <$> (mapM (.: "id") =<< o .: "parents"))
         <*> ((.: "trashed") =<< o .: "labels")
         <*> o .:? "downloadUrl"
 
@@ -44,6 +46,3 @@ instance FromJSON Item where
 
 unTrashed :: [Item] -> [Item]
 unTrashed = filter (not . itemTrashed)
-
-root :: FileId
-root = "root"
