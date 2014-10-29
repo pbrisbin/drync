@@ -20,4 +20,4 @@ defaults to "root", syncing the current directory with the entire Drive.
 
 ## Development / Installation
 
-Run `bin/setup` to get started.
+Use `bin/setup` to get started. Use `cabal run` to try it out.
