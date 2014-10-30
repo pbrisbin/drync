@@ -13,9 +13,9 @@ Library
   Default-Language:     Haskell2010
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
-  Exposed-Modules:      Drync
-                      , Drync.Client
+  Exposed-Modules:      Drync.Client
                       , Drync.Options
+                      , Drync.Sync
                       , Drync.Token
                       , Drync.Drive.Api
                       , Drync.Drive.Item
@@ -24,11 +24,14 @@ Library
                       , aeson           >= 0.8          && < 0.9
                       , containers
                       , directory
+                      , filepath
                       , handa-gdata     >= 0.6.9.2      && < 0.7
                       , http-conduit    >= 2.1          && < 2.2
                       , mtl
                       , text                               < 2.0
                       , time
+  Default-Extensions:   OverloadedStrings
+                        RecordWildCards
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
@@ -41,6 +44,8 @@ Test-Suite spec
                       , bytestring
                       , aeson
                       , hspec
+  Default-Extensions:   OverloadedStrings
+                        RecordWildCards
 
 Executable drync
   Default-Language:     Haskell2010
@@ -53,6 +58,8 @@ Executable drync
                       , filepath
                       , text
                       , xdg-basedir
+  Default-Extensions:   OverloadedStrings
+                        RecordWildCards
 
 Source-Repository head
   Type:                 git

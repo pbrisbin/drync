@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Drync.Drive.Item
     ( FileId
     , Items(..)
@@ -10,8 +9,11 @@ import Control.Applicative
 import Control.Monad (mzero)
 import Data.Aeson
 import Data.Maybe (listToMaybe)
+import Data.Monoid ((<>))
 import Data.Text (Text)
 import Data.Time (UTCTime)
+
+import qualified Data.Text as T
 
 type FileId = Text
 
@@ -31,7 +33,12 @@ data Item = Item
     , itemTrashed :: Bool
     , itemDownloadUrl :: Maybe Text
     }
-    deriving (Eq, Show)
+
+instance Eq Item where
+    a == b = itemId a == itemId b
+
+instance Show Item where
+    show Item{..} = T.unpack $ itemTitle <> " (" <> itemId <> ")"
 
 instance FromJSON Item where
     parseJSON (Object o) = Item
