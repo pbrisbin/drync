@@ -33,6 +33,7 @@ Library
                       , http-conduit    >= 2.1          && < 2.2
                       , http-types
                       , mtl
+                      , optparse-applicative
                       , text                               < 2.0
                       , time
   Default-Extensions:   OverloadedStrings
