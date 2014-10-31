@@ -25,10 +25,13 @@ Library
                       , aeson           >= 0.8          && < 0.9
                       , bytestring
                       , containers
+                      , conduit
+                      , conduit-extra
                       , directory
                       , filepath
                       , handa-gdata     >= 0.6.9.2      && < 0.7
                       , http-conduit    >= 2.1          && < 2.2
+                      , http-types
                       , mtl
                       , text                               < 2.0
                       , time

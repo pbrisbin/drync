@@ -9,9 +9,9 @@ module Drync.Drive.Api.File
     , downloadFile
     ) where
 
-import Control.Applicative
+import Control.Applicative ((<$>), (<*>))
 import Control.Monad (mzero)
-import Data.Aeson
+import Data.Aeson (FromJSON(..), Value(..), (.=), (.:), (.:?), object)
 import Data.Maybe (listToMaybe)
 import Data.Monoid ((<>))
 import Data.Text (Text)
@@ -61,22 +61,34 @@ getFile :: FileId -> Api (Maybe Item)
 getFile fileId = simpleApi $ "/files/" <> T.unpack fileId
 
 createFolder :: FileId -> Text -> Api (Maybe Item)
-createFolder parentId name = postApi "/files" $ object
-    [ "title" .= name
-    , "parents" .= (object ["id" .= parentId])
-    , "mimeType" .= ("application/vnd.google-apps.folder" :: Text)
-    ]
+createFolder parentId name = do
+    logApi $ "CREATE FOLDER " <> T.unpack parentId <> "/" <> T.unpack name
 
+    postApi "/files" $ object
+        [ "title" .= name
+        , "parents" .= [object ["id" .= parentId]]
+        , "mimeType" .= folderType
+        ]
+
+  where
+    folderType :: Text
+    folderType = "application/vnd.google-apps.folder"
+
+-- TODO
 createFile :: FilePath -> Item -> Api FileId
-createFile path item = do
-    liftIO $ putStrLn $ "CREATE " <> path <> " --> " <> show item
+createFile path parent = do
+    logApi $ "CREATE " <> path <> " --> " <> show parent
 
     return "new"
 
+-- TODO
 updateFile :: FilePath -> Item -> Api ()
 updateFile path item =
-    liftIO $ putStrLn $ "UPDATE " <> path <> " --> " <> show item
+    logApi $ "UPDATE " <> path <> " --> " <> show item
 
 downloadFile :: Item -> FilePath -> Api ()
-downloadFile item path =
-    liftIO $ putStrLn $ "DOWNLOAD " <> show item <> " --> " <> path
+downloadFile item path = case itemDownloadUrl item of
+    Nothing -> logApi $ show item <> " had no Download URL"
+    Just url -> do
+        logApi $ "DOWNLOAD " <> show item <> " --> " <> path
+        authenticatedDownload (T.unpack url) path

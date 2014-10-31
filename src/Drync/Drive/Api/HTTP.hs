@@ -3,22 +3,38 @@ module Drync.Drive.Api.HTTP
     , Path
     , Params
     , runApi
+    , logApi
+    , logApiErr
     , simpleApi
     , getApi
     , postApi
+    , authenticatedDownload
 
     -- Re-exports
     , liftIO
     ) where
 
 import Control.Monad.Reader
-import Data.Aeson --(decode, encode)
+import Data.Aeson (FromJSON(..), ToJSON(..), decode, encode)
 import Data.ByteString (ByteString)
+import Data.Conduit.Binary (sinkFile)
 import Data.Monoid ((<>))
-import Network.HTTP.Conduit --(Request(..), RequestBody(..), parseUrl, simpleHttp)
---import Network.HTTP.Types (Headers, hAuthorization, hContentType)
+import Network.HTTP.Conduit
+    ( Request(..)
+    , RequestBody(..)
+    , http
+    , httpLbs
+    , parseUrl
+    , responseBody
+    , setQueryString
+    , withManager
+    )
+import Network.HTTP.Types (Header, Method, hAuthorization, hContentType)
+import System.IO (hPutStrLn, stderr)
 
 import qualified Data.ByteString.Char8 as C8
+import qualified Data.ByteString.Lazy as BL
+import qualified Data.Conduit as C
 
 import Drync.Token
 
@@ -27,10 +43,19 @@ type Api a = ReaderT OAuth2Tokens IO a
 runApi :: OAuth2Tokens -> Api a -> IO a
 runApi tokens f = runReaderT f tokens
 
+-- TODO: WriterT, async logging
+logApi :: String -> Api ()
+logApi = liftIO . putStrLn
+
+-- TODO: WriterT, async logging
+logApiErr :: String -> Api ()
+logApiErr = liftIO . hPutStrLn stderr
+
+type URL = String
 type Path = String
 type Params = [(ByteString, Maybe ByteString)]
 
-baseUrl :: String
+baseUrl :: URL
 baseUrl = "https://www.googleapis.com/drive/v2"
 
 simpleApi :: FromJSON a => Path -> Api (Maybe a)
@@ -38,36 +63,44 @@ simpleApi path = getApi path []
 
 getApi :: FromJSON a => Path -> Params -> Api (Maybe a)
 getApi path query = do
-    request <- withToken query =<< liftIO (parseUrl $ baseUrl <> path)
+    request <- fmap (setQueryString query) $ authorize =<< apiRequest path
 
     fmap (decode . responseBody) $ withManager $ httpLbs request
 
 postApi :: (ToJSON a, FromJSON b) => Path -> a -> Api (Maybe b)
-postApi = undefined
--- createFolder :: FileId -> Text -> Api (Maybe Item)
--- createFolder parentId folder = do
---     request' <- parseUrl $ baseUrl <> "/files"
+postApi path body = do
+    let content = (hContentType, "application/json")
+        modify = addHeader content . addBody (encode body) . setMethod "POST"
 
---     let
---         request = addHeaders headers $ request'
---             { method = "POST"
---             , requestBody = RequestBodyLBS $ encode body
---             }
+    request <- fmap modify $ authorize =<< apiRequest path
 
---     return Nothing -- TODO
+    fmap (decode . responseBody) $ withManager $ httpLbs request
 
---   where
---     headers :: Headers
---     headers =
---             [ (hAuthorization, "Bearer " <> show (accessToken tokens))
---             , (hContentType, "application/json")
---             ]
+authenticatedDownload :: URL -> FilePath -> Api ()
+authenticatedDownload url file = do
+    request <- authorize =<< (liftIO $ parseUrl url)
 
-withToken :: Params -> Request -> Api Request
-withToken query request = do
+    withManager $ \manager -> do
+        response <- http request manager
+        responseBody response C.$$+- sinkFile file
+
+apiRequest :: Path -> Api Request
+apiRequest path = liftIO $ parseUrl $ baseUrl <> path
+
+authorize :: Request -> Api Request
+authorize request = do
     tokens <- ask
 
-    let token = C8.pack $ accessToken tokens
-    let query' = ("access_token", Just token):query
+    let authorization = C8.pack $ "Bearer " <> accessToken tokens
 
-    return $ setQueryString query' request
+    return $ addHeader (hAuthorization, authorization) request
+
+addHeader :: Header -> Request -> Request
+addHeader header request =
+    request { requestHeaders = header:requestHeaders request }
+
+addBody :: BL.ByteString -> Request -> Request
+addBody bs request = request { requestBody = RequestBodyLBS bs }
+
+setMethod :: Method -> Request -> Request
+setMethod method request = request { method = method }

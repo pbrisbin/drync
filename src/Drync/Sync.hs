@@ -5,8 +5,14 @@ module Drync.Sync
 
 import Control.Applicative ((<$>))
 import Control.Monad (void)
+import Data.Monoid ((<>))
 import Data.Text (Text)
-import System.Directory -- TODO imports
+import System.Directory
+    ( doesDirectoryExist
+    , doesFileExist
+    , getDirectoryContents
+    , getModificationTime
+    )
 import System.FilePath ((</>), takeFileName)
 
 import qualified Data.Text as T
@@ -41,7 +47,7 @@ executeSync (Sync path item) = do
     case (isFile, isDirectory) of
         (True, _) -> executeSync $ SyncFile path item
         (_, True) -> executeSync $ SyncDirectory path item
-        _ -> return () -- TODO: putErr
+        _ -> logApiErr $ path <> " does not exist"
 
 executeSync (SyncFile path item) = do
     fileModified <- liftIO $ getModificationTime path
@@ -84,7 +90,7 @@ executeSync (Upload path item) = do
             mfolder <- createFolder parentId name
 
             case mfolder of
-                Nothing -> return () -- TODO: putErr
+                Nothing -> logApiErr $ "Folder " <> T.unpack name <> " not created"
                 Just folder -> mapM_ (uploadEach folder . (path </>)) files
 
 syncEach :: FilePath -> Item -> Api ()
