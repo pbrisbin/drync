@@ -1,17 +1,20 @@
 module Drync.Sync
     ( Sync(..)
-    , executeSync
+    , sync
     ) where
 
 import Control.Applicative ((<$>))
 import Control.Monad (void)
+import Data.Text (Text)
 import System.Directory -- TODO imports
 import System.FilePath ((</>), takeFileName)
 
 import qualified Data.Text as T
 
-import Drync.Drive.Api
-import Drync.Drive.Item
+import Drync.Token (OAuth2Tokens)
+import Drync.Drive.Api.File
+import Drync.Drive.Api.HTTP
+import Drync.Drive.Api.Search
 
 data Sync
     = Sync FilePath Item
@@ -19,6 +22,16 @@ data Sync
     | SyncDirectory FilePath Item
     | Upload FilePath Item
     | Download Item FilePath
+
+sync :: OAuth2Tokens -> FilePath -> Text -> IO ()
+sync tokens from to = do
+    let query = TitleEq to `And` ParentEq "root"
+
+    runApi tokens $ do
+        -- TODO: error handling
+        (item:_) <- getFiles query
+
+        executeSync (Sync from item)
 
 executeSync :: Sync -> Api ()
 executeSync (Sync path item) = do

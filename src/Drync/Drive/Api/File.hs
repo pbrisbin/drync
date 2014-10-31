@@ -1,94 +1,65 @@
-module Drync.Drive.Api
-    ( Api
-    , runApi
-    , Query(..)
+module Drync.Drive.Api.File
+    ( FileId
+    , Items(..)
+    , Item(..) -- TODO: rename to File?
     , getFile
-    , getFiles
     , createFolder
     , createFile
     , updateFile
     , downloadFile
-
-    -- Re-exports
-    , liftIO
     ) where
 
-import Control.Monad.Reader
-import Data.Aeson --(decode, encode)
-import Data.ByteString (ByteString)
+import Control.Applicative
+import Control.Monad (mzero)
+import Data.Aeson
+import Data.Maybe (listToMaybe)
 import Data.Monoid ((<>))
 import Data.Text (Text)
-import Data.Text.Encoding (encodeUtf8)
-import Data.Time (getCurrentTime)
-import Network.HTTP.Conduit --(Request(..), RequestBody(..), parseUrl, simpleHttp)
---import Network.HTTP.Types (Headers, hAuthorization, hContentType)
+import Data.Time (UTCTime, getCurrentTime)
 
-import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
-import Drync.Token
-import Drync.Drive.Item
+import Drync.Drive.Api.HTTP
 
-type Api a = ReaderT OAuth2Tokens IO a
+type FileId = Text
 
-runApi :: OAuth2Tokens -> Api a -> IO a
-runApi tokens f = runReaderT f tokens
+newtype Items = Items [Item]
 
-data Query
-    = TitleEq Text
-    | ParentEq FileId
-    | Query `And` Query
-    | Query `Or` Query
+instance FromJSON Items where
+    parseJSON (Object o) = Items
+        <$> (mapM parseJSON =<< o .: "items")
 
-toParam :: Query -> ByteString
-toParam (TitleEq title) = "title = " <> quote title
-toParam (ParentEq fileId) = quote fileId <> " in parents"
-toParam (p `And` q) = "(" <> toParam p <> ") and (" <> toParam q <> ")"
-toParam (p `Or` q) = "(" <> toParam p <> ") or (" <> toParam q <> ")"
+    parseJSON _ = mzero
 
-quote :: Text -> ByteString
-quote = ("'" <>) . (<> "'") . encodeUtf8
+data Item = Item
+    { itemId :: FileId
+    , itemTitle :: Text
+    , itemModified :: UTCTime
+    , itemParent :: Maybe FileId
+    , itemTrashed :: Bool
+    , itemDownloadUrl :: Maybe Text
+    }
 
-type Path = String
-type Params = [(ByteString, Maybe ByteString)]
+instance Eq Item where
+    a == b = itemId a == itemId b
 
-baseUrl :: String
-baseUrl = "https://www.googleapis.com/drive/v2"
+instance Show Item where
+    show Item{..} = T.unpack $ itemTitle <> " (" <> itemId <> ")"
 
-simpleApi :: FromJSON a => Path -> Api (Maybe a)
-simpleApi path = getApi path []
+instance FromJSON Item where
+    parseJSON (Object o) = Item
+        <$> o .: "id"
+        <*> o .: "title"
+        <*> o .: "modifiedDate"
+        <*> (listToMaybe <$> (mapM (.: "id") =<< o .: "parents"))
+        <*> ((.: "trashed") =<< o .: "labels")
+        <*> o .:? "downloadUrl"
 
-getApi :: FromJSON a => Path -> Params -> Api (Maybe a)
-getApi path query = do
-    request <- withToken query =<< liftIO (parseUrl $ baseUrl <> path)
-
-    fmap (decode . responseBody) $ withManager $ httpLbs request
-
-withToken :: Params -> Request -> Api Request
-withToken query request = do
-    tokens <- ask
-
-    let token = C8.pack $ accessToken tokens
-    let query' = ("access_token", Just token):query
-
-    return $ setQueryString query' request
+    parseJSON _ = mzero
 
 getFile :: FileId -> Api (Maybe Item)
 getFile fileId = simpleApi $ "/files/" <> T.unpack fileId
-
-getFiles :: Query -> Api [Item]
-getFiles query = do
-    let query' =
-            [ ("q", Just $ toParam query)
-            , ("maxResults", Just "1000")
-            ]
-
-    mlist <- getApi "/files" query'
-
-    return $ case mlist of
-        Just (Items items) -> unTrashed items
-        Nothing -> []
 
 createFolder :: FileId -> Text -> Api Item
 createFolder parentId name = do

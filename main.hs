@@ -8,11 +8,6 @@ import Drync.Options
 import Drync.Sync
 import Drync.Token
 
-import Drync.Drive.Api
-
-appName :: String
-appName = "drync"
-
 main :: IO ()
 main = do
     options <- getOptions
@@ -20,14 +15,10 @@ main = do
     file <- tokenFile $ oProfile options
     tokens <- generateTokens False client file
 
-    let path = oSyncFrom options
-        query = TitleEq (oSyncTo options) `And` ParentEq "root"
+    sync tokens (oSyncFrom options) (oSyncTo options)
 
-    runApi tokens $ do
-        -- TODO: error handling
-        (item:_) <- getFiles query
-
-        executeSync (Sync path item)
+appName :: String
+appName = "drync"
 
 tokenFile :: String -> IO FilePath
 tokenFile profile = do
