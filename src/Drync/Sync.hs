@@ -4,9 +4,10 @@ module Drync.Sync
     ) where
 
 import Control.Applicative ((<$>))
-import Control.Monad (void)
+import Control.Monad (void, when)
 import Data.Monoid ((<>))
 import Data.Text (Text)
+import Data.Time (UTCTime, diffUTCTime)
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
@@ -50,9 +51,17 @@ executeSync (Sync path item) = do
 executeSync (SyncFile path item) = do
     fileModified <- liftIO $ getModificationTime path
 
-    if fileModified > itemModified item
-        then updateFile path item
-        else downloadFile item path
+    when (different fileModified $ itemModified item) $
+        if fileModified > itemModified item
+            then updateFile path item
+            else downloadFile item path
+
+  where
+    -- Downloading or uploading results in a small difference in modification
+    -- times. We should ignore such differences so as to not continually
+    -- re-sync files back and forth.
+    different :: UTCTime -> UTCTime -> Bool
+    different x = (> 30) . abs . diffUTCTime x
 
 executeSync (SyncDirectory path item) = do
     items <- getFiles $ ParentEq (itemId item)
