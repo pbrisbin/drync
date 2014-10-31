@@ -8,6 +8,9 @@ module Drync.Drive.Api
     , createFile
     , updateFile
     , downloadFile
+
+    -- Re-exports
+    , liftIO
     ) where
 
 import Control.Monad.Reader

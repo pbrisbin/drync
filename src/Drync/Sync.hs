@@ -10,7 +10,6 @@ import System.FilePath ((</>), takeFileName)
 
 import qualified Data.Text as T
 
-import Drync.Token
 import Drync.Drive.Api
 import Drync.Drive.Item
 
@@ -21,70 +20,74 @@ data Sync
     | Upload FilePath Item
     | Download Item FilePath
 
-executeSync :: OAuth2Tokens -> Sync -> IO ()
-executeSync tokens (Sync path item) = do
-    isFile <- doesFileExist path
-    isDirectory <- doesDirectoryExist path
+executeSync :: Sync -> Api ()
+executeSync (Sync path item) = do
+    isFile <- liftIO $ doesFileExist path
+    isDirectory <- liftIO $ doesDirectoryExist path
 
     case (isFile, isDirectory) of
-        (True, _) -> executeSync tokens $ SyncFile path item
-        (_, True) -> executeSync tokens $ SyncDirectory path item
+        (True, _) -> executeSync $ SyncFile path item
+        (_, True) -> executeSync $ SyncDirectory path item
         _ -> return () -- TODO: putErr
 
-executeSync tokens (SyncFile path item) = do
-    fileModified <- getModificationTime path
+executeSync (SyncFile path item) = do
+    fileModified <- liftIO $ getModificationTime path
 
     if fileModified > itemModified item
-        then updateFile tokens path item
-        else downloadFile tokens item path
+        then updateFile path item
+        else downloadFile item path
 
-executeSync tokens (SyncDirectory path item) = do
-    items <- getFiles tokens $ ParentEq (itemId item)
-    files <- filter (not . hidden) <$> getDirectoryContents path
+executeSync (SyncDirectory path item) = do
+    items <- getFiles $ ParentEq (itemId item)
+    files <- liftIO $ getVisibleDirectoryContents path
 
     -- probably inefficient but hopefuly these are small enough lists
     let both = filter ((`elem` files) . T.unpack . itemTitle) items
         local = filter ((`notElem` (map itemTitle both)) . T.pack) files
         remote = filter (`notElem` both) items
 
-    mapM_ (syncEach tokens path) both
-    mapM_ (uploadEach tokens item . (path </>)) local
-    mapM_ (downloadEach tokens path) remote
+    mapM_ (syncEach path) both
+    mapM_ (uploadEach item . (path </>)) local
+    mapM_ (downloadEach path) remote
 
-executeSync tokens (Download item path) = do
+executeSync (Download item path) = do
     case itemDownloadUrl item of
-        Just _ -> downloadFile tokens item path
+        Just _ -> downloadFile item path
         Nothing -> do
-            items <- getFiles tokens $ ParentEq (itemId item)
-            mapM_ (downloadEach tokens path) items
+            items <- getFiles $ ParentEq (itemId item)
+            mapM_ (downloadEach path) items
 
-executeSync tokens (Upload path item) = do
-    isDirectory <- doesDirectoryExist path
+executeSync (Upload path item) = do
+    isDirectory <- liftIO $ doesDirectoryExist path
 
     if not isDirectory
-        then void $ createFile tokens path item
+        then void $ createFile path item
         else do
-            files <- filter (not . hidden) <$> getDirectoryContents path
+            files <- liftIO $ getVisibleDirectoryContents path
 
             let parentId = itemId item
                 name = T.pack $ takeFileName path
 
-            folder <- createFolder tokens parentId name
+            folder <- createFolder parentId name
 
-            mapM_ (\f -> executeSync tokens $ Upload (path </> f) folder) files
+            mapM_ (\f -> executeSync $ Upload (path </> f) folder) files
 
-syncEach :: OAuth2Tokens -> FilePath -> Item -> IO ()
-syncEach tokens path item = executeSync tokens $ Sync (localPath path item) item
+syncEach :: FilePath -> Item -> Api ()
+syncEach path item = executeSync $ Sync (localPath path item) item
 
-uploadEach :: OAuth2Tokens -> Item -> FilePath -> IO ()
-uploadEach tokens item path = executeSync tokens $ Upload path item
+uploadEach :: Item -> FilePath -> Api ()
+uploadEach item path = executeSync $ Upload path item
 
-downloadEach :: OAuth2Tokens -> FilePath -> Item -> IO ()
-downloadEach tokens path item = executeSync tokens $ Download item (localPath path item)
+downloadEach :: FilePath -> Item -> Api ()
+downloadEach path item = executeSync $ Download item (localPath path item)
 
-hidden :: FilePath -> Bool
-hidden ('.':_) = True
-hidden _ = False
+getVisibleDirectoryContents :: FilePath -> IO [FilePath]
+getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
+
+  where
+    visible :: FilePath -> Bool
+    visible ('.':_) = False
+    visible _ = True
 
 localPath :: FilePath -> Item -> FilePath
 localPath p i = p </> T.unpack (itemTitle i)
