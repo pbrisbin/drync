@@ -30,14 +30,12 @@ data Sync
     | Download Item FilePath
 
 sync :: OAuth2Tokens -> FilePath -> Text -> IO ()
-sync tokens from to = do
-    let query = TitleEq to `And` ParentEq "root"
+sync tokens from to = runApi tokens $ do
+    items <- getFiles $ TitleEq to `And` ParentEq "root"
 
-    runApi tokens $ do
-        -- TODO: error handling
-        (item:_) <- getFiles query
-
-        executeSync (Sync from item)
+    case items of
+        (item:_) -> executeSync (Sync from item)
+        _ -> logApiErr $ T.unpack to <> " does not exist"
 
 executeSync :: Sync -> Api ()
 executeSync (Sync path item) = do
