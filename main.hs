@@ -13,7 +13,7 @@ main = do
     options <- getOptions
 
     file <- tokenFile $ oProfile options
-    tokens <- generateTokens False client file
+    tokens <- generateTokens (oRefresh options) client file
 
     sync tokens (oSyncFrom options) (oSyncTo options)
 
