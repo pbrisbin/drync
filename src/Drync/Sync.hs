@@ -81,9 +81,11 @@ executeSync (Upload path item) = do
             let parentId = itemId item
                 name = T.pack $ takeFileName path
 
-            folder <- createFolder parentId name
+            mfolder <- createFolder parentId name
 
-            mapM_ (\f -> executeSync $ Upload (path </> f) folder) files
+            case mfolder of
+                Nothing -> return () -- TODO: putErr
+                Just folder -> mapM_ (uploadEach folder . (path </>)) files
 
 syncEach :: FilePath -> Item -> Api ()
 syncEach path item = executeSync $ Sync (localPath path item) item
