@@ -15,14 +15,15 @@ module Drync.Drive.Api
 
 import Control.Monad.Reader
 import Data.Aeson --(decode, encode)
-import Data.ByteString.Lazy (ByteString)
+import Data.ByteString (ByteString)
 import Data.Monoid ((<>))
 import Data.Text (Text)
+import Data.Text.Encoding (encodeUtf8)
 import Data.Time (getCurrentTime)
-import Network.HTTP.Base (urlEncode)
 import Network.HTTP.Conduit --(Request(..), RequestBody(..), parseUrl, simpleHttp)
 --import Network.HTTP.Types (Headers, hAuthorization, hContentType)
 
+import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
 
@@ -40,34 +41,50 @@ data Query
     | Query `And` Query
     | Query `Or` Query
 
-toParam :: Query -> String
-toParam = urlEncode . T.unpack . toParam'
+toParam :: Query -> ByteString
+toParam (TitleEq title) = "title = " <> quote title
+toParam (ParentEq fileId) = quote fileId <> " in parents"
+toParam (p `And` q) = "(" <> toParam p <> ") and (" <> toParam q <> ")"
+toParam (p `Or` q) = "(" <> toParam p <> ") or (" <> toParam q <> ")"
 
-  where
-    toParam' (TitleEq title) = "title = " <> quote title
-    toParam' (ParentEq fileId) = quote fileId <> " in parents"
-    toParam' (p `And` q) = "(" <> toParam' p <> ") and (" <> toParam' q <> ")"
-    toParam' (p `Or` q) = "(" <> toParam' p <> ") or (" <> toParam' q <> ")"
+quote :: Text -> ByteString
+quote = ("'" <>) . (<> "'") . encodeUtf8
 
-    quote = ("'" <>) . (<> "'")
+type Path = String
+type Params = [(ByteString, Maybe ByteString)]
 
 baseUrl :: String
 baseUrl = "https://www.googleapis.com/drive/v2"
 
-simpleApi :: String -> String -> Api ByteString
-simpleApi path query = do
+simpleApi :: FromJSON a => Path -> Api (Maybe a)
+simpleApi path = getApi path []
+
+getApi :: FromJSON a => Path -> Params -> Api (Maybe a)
+getApi path query = do
+    request <- withToken query =<< liftIO (parseUrl $ baseUrl <> path)
+
+    fmap (decode . responseBody) $ withManager $ httpLbs request
+
+withToken :: Params -> Request -> Api Request
+withToken query request = do
     tokens <- ask
 
-    liftIO $ simpleHttp $ baseUrl <> path <>
-        "?access_token=" <> accessToken tokens <> query
+    let token = C8.pack $ accessToken tokens
+    let query' = ("access_token", Just token):query
+
+    return $ setQueryString query' request
 
 getFile :: FileId -> Api (Maybe Item)
-getFile fileId = fmap decode $ simpleApi ("/files/" <> T.unpack fileId) ""
+getFile fileId = simpleApi $ "/files/" <> T.unpack fileId
 
 getFiles :: Query -> Api [Item]
 getFiles query = do
-    mlist <- fmap decode $ simpleApi "/files" $
-        "&maxResults=1000&q=" <> toParam query
+    let query' =
+            [ ("q", Just $ toParam query)
+            , ("maxResults", Just "1000")
+            ]
+
+    mlist <- getApi "/files" query'
 
     return $ case mlist of
         Just (Items items) -> unTrashed items
