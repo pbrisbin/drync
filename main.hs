@@ -23,10 +23,11 @@ main = do
     let path = oSyncFrom options
         query = TitleEq (oSyncTo options) `And` ParentEq "root"
 
-    -- TODO: error handling
-    (item:_) <- getFiles tokens query
+    runApi tokens $ do
+        -- TODO: error handling
+        (item:_) <- getFiles query
 
-    executeSync tokens (Sync path item)
+        executeSync (Sync path item)
 
 tokenFile :: String -> IO FilePath
 tokenFile profile = do
