@@ -1,5 +1,7 @@
 module Drync.Drive.Api
-    ( Query(..)
+    ( Api
+    , runApi
+    , Query(..)
     , getFile
     , getFiles
     , createFolder
@@ -8,7 +10,9 @@ module Drync.Drive.Api
     , downloadFile
     ) where
 
+import Control.Monad.Reader
 import Data.Aeson --(decode, encode)
+import Data.ByteString.Lazy (ByteString)
 import Data.Monoid ((<>))
 import Data.Text (Text)
 import Data.Time (getCurrentTime)
@@ -21,6 +25,11 @@ import qualified Data.Text.IO as T
 
 import Drync.Token
 import Drync.Drive.Item
+
+type Api a = ReaderT OAuth2Tokens IO a
+
+runApi :: OAuth2Tokens -> Api a -> IO a
+runApi tokens f = runReaderT f tokens
 
 data Query
     = TitleEq Text
@@ -42,25 +51,30 @@ toParam = urlEncode . T.unpack . toParam'
 baseUrl :: String
 baseUrl = "https://www.googleapis.com/drive/v2"
 
-getFile :: OAuth2Tokens -> FileId -> IO (Maybe Item)
-getFile tokens fileId = fmap decode $ simpleHttp $ baseUrl <>
-    "/files/" <> T.unpack fileId <> "?access_token=" <> accessToken tokens
+simpleApi :: String -> String -> Api ByteString
+simpleApi path query = do
+    tokens <- ask
 
-getFiles :: OAuth2Tokens -> Query -> IO [Item]
-getFiles tokens query = do
-    mlist <- fmap decode $ simpleHttp $ baseUrl <>
-        "/files" <> "?access_token=" <> accessToken tokens <>
-        "&q=" <> toParam query <> "&maxResults=1000"
+    liftIO $ simpleHttp $ baseUrl <> path <>
+        "?access_token=" <> accessToken tokens <> query
+
+getFile :: FileId -> Api (Maybe Item)
+getFile fileId = fmap decode $ simpleApi ("/files/" <> T.unpack fileId) ""
+
+getFiles :: Query -> Api [Item]
+getFiles query = do
+    mlist <- fmap decode $ simpleApi "/files" $
+        "&maxResults=1000&q=" <> toParam query
 
     return $ case mlist of
         Just (Items items) -> unTrashed items
         Nothing -> []
 
-createFolder :: OAuth2Tokens -> FileId -> Text -> IO Item
-createFolder _ parentId name = do
-    T.putStrLn $ "CREATE FOLDER " <> parentId <> "/" <> name
+createFolder :: FileId -> Text -> Api Item
+createFolder parentId name = do
+    liftIO $ T.putStrLn $ "CREATE FOLDER " <> parentId <> "/" <> name
 
-    now <- getCurrentTime
+    now <- liftIO getCurrentTime
 
     return Item
             { itemId = "new"
@@ -71,22 +85,22 @@ createFolder _ parentId name = do
             , itemDownloadUrl = Nothing
             }
 
-createFile :: OAuth2Tokens -> FilePath -> Item -> IO FileId
-createFile _ path item = do
-    putStrLn $ "CREATE " <> path <> " --> " <> show item
+createFile :: FilePath -> Item -> Api FileId
+createFile path item = do
+    liftIO $ putStrLn $ "CREATE " <> path <> " --> " <> show item
 
     return "new"
 
-updateFile :: OAuth2Tokens -> FilePath -> Item -> IO ()
-updateFile _ path item =
-    putStrLn $ "UPDATE " <> path <> " --> " <> show item
+updateFile :: FilePath -> Item -> Api ()
+updateFile path item =
+    liftIO $ putStrLn $ "UPDATE " <> path <> " --> " <> show item
 
-downloadFile :: OAuth2Tokens -> Item -> FilePath -> IO ()
-downloadFile _ item path =
-    putStrLn $ "DOWNLOAD " <> show item <> " --> " <> path
+downloadFile :: Item -> FilePath -> Api ()
+downloadFile item path =
+    liftIO $ putStrLn $ "DOWNLOAD " <> show item <> " --> " <> path
 
--- createFolder :: OAuth2Tokens -> FileId -> Text -> IO (Maybe Item)
--- createFolder tokens parentId folder = do
+-- createFolder :: FileId -> Text -> Api (Maybe Item)
+-- createFolder parentId folder = do
 --     request' <- parseUrl $ baseUrl <> "/files"
 
 --     let
