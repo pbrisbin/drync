@@ -4,16 +4,17 @@
 
 Sync a local directory with Google Drive. Very alpha. Beware.
 
-## Usage
-
 ```
-usage: drync [options]
-options:
-    -f, --sync-from DIR         Sync from the given directory
-    -t, --sync-to FOLDER        Sync to the given folder
+Usage: drync [-p|--profile NAME] [-r|--refresh-oauth] [-f|--sync-from DIR]
+             [-t|--sync-to FOLDER]
+  Sync a local directory with one on Google Drive
 
-    -p, --profile NAME          Use the named profile
-    -r, --refresh-oauth         Ignore cached OAuth2 credentials
+Available options:
+  -h,--help                Show this help text
+  -p,--profile NAME        Use the named profile
+  -r,--refresh-oauth       Ignore cached OAuth2 credentials
+  -f,--sync-from DIR       Sync from the given directory
+  -t,--sync-to FOLDER      Sync to the given folder
 ```
 
 ## Features
@@ -21,7 +22,7 @@ options:
 **MVP**
 
 - [x] OAuth2 negotiation and token auth
-- [ ] Command-line options
+- [x] Command-line options
 - [x] Recursively finding files to sync
 - [x] Creating folders on remote
 - [ ] Creating files on remote
