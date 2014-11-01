@@ -24,37 +24,37 @@ import Drync.Drive.Api.HTTP
 import Drync.Drive.Api.Search
 
 data Sync
-    = Sync FilePath Item
-    | SyncFile FilePath Item
-    | SyncDirectory FilePath Item
-    | Upload FilePath Item
-    | Download Item FilePath
+    = Sync FilePath File
+    | SyncFile FilePath File
+    | SyncDirectory FilePath File
+    | Upload FilePath File
+    | Download File FilePath
 
 sync :: OAuth2Tokens -> FilePath -> Text -> IO ()
 sync tokens from to = runApi tokens $ do
-    items <- getFiles $ TitleEq to `And` ParentEq "root"
+    files <- getFiles $ TitleEq to `And` ParentEq "root"
 
-    case items of
-        (item:_) -> executeSync (Sync from item)
+    case files of
+        (file:_) -> executeSync (Sync from file)
         _ -> logApiErr $ T.unpack to <> " does not exist"
 
 executeSync :: Sync -> Api ()
-executeSync (Sync path item) = do
+executeSync (Sync path file) = do
     isFile <- liftIO $ doesFileExist path
     isDirectory <- liftIO $ doesDirectoryExist path
 
     case (isFile, isDirectory) of
-        (True, _) -> executeSync $ SyncFile path item
-        (_, True) -> executeSync $ SyncDirectory path item
+        (True, _) -> executeSync $ SyncFile path file
+        (_, True) -> executeSync $ SyncDirectory path file
         _ -> logApiErr $ path <> " does not exist"
 
-executeSync (SyncFile path item) = do
-    fileModified <- liftIO $ getModificationTime path
+executeSync (SyncFile path file) = do
+    localModified <- liftIO $ getModificationTime path
 
-    when (different fileModified $ itemModified item) $
-        if fileModified > itemModified item
-            then updateFile path item
-            else downloadFile item path
+    when (different localModified $ fileModified file) $
+        if localModified > fileModified file
+            then updateFile path file
+            else downloadFile file path
 
   where
     -- Downloading or uploading results in a small difference in modification
@@ -63,35 +63,35 @@ executeSync (SyncFile path item) = do
     different :: UTCTime -> UTCTime -> Bool
     different x = (> 30) . abs . diffUTCTime x
 
-executeSync (SyncDirectory path item) = do
-    items <- getFiles $ ParentEq (itemId item)
-    files <- liftIO $ getVisibleDirectoryContents path
+executeSync (SyncDirectory path file) = do
+    files <- getFiles $ ParentEq (fileId file)
+    paths <- liftIO $ getVisibleDirectoryContents path
 
     -- probably inefficient but hopefuly these are small enough lists
-    let both = filter ((`elem` files) . T.unpack . itemTitle) items
-        local = filter ((`notElem` (map itemTitle both)) . T.pack) files
-        remote = filter (`notElem` both) items
+    let both = filter ((`elem` paths) . T.unpack . fileTitle) files
+        local = filter ((`notElem` (map fileTitle both)) . T.pack) paths
+        remote = filter (`notElem` both) files
 
     mapM_ (syncEach path) both
-    mapM_ (uploadEach item . (path </>)) local
+    mapM_ (uploadEach file . (path </>)) local
     mapM_ (downloadEach path) remote
 
-executeSync (Download item path) = do
-    case itemDownloadUrl item of
-        Just _ -> downloadFile item path
+executeSync (Download file path) = do
+    case fileDownloadUrl file of
+        Just _ -> downloadFile file path
         Nothing -> do
-            items <- getFiles $ ParentEq (itemId item)
-            mapM_ (downloadEach path) items
+            files <- getFiles $ ParentEq (fileId file)
+            mapM_ (downloadEach path) files
 
-executeSync (Upload path item) = do
+executeSync (Upload path file) = do
     isDirectory <- liftIO $ doesDirectoryExist path
 
     if not isDirectory
-        then void $ createFile path item
+        then void $ createFile path file
         else do
             files <- liftIO $ getVisibleDirectoryContents path
 
-            let parentId = itemId item
+            let parentId = fileId file
                 name = T.pack $ takeFileName path
 
             mfolder <- createFolder parentId name
@@ -100,14 +100,14 @@ executeSync (Upload path item) = do
                 Nothing -> logApiErr $ "Folder " <> T.unpack name <> " not created"
                 Just folder -> mapM_ (uploadEach folder . (path </>)) files
 
-syncEach :: FilePath -> Item -> Api ()
-syncEach path item = executeSync $ Sync (localPath path item) item
+syncEach :: FilePath -> File -> Api ()
+syncEach path file = executeSync $ Sync (localPath path file) file
 
-uploadEach :: Item -> FilePath -> Api ()
-uploadEach item path = executeSync $ Upload path item
+uploadEach :: File -> FilePath -> Api ()
+uploadEach file path = executeSync $ Upload path file
 
-downloadEach :: FilePath -> Item -> Api ()
-downloadEach path item = executeSync $ Download item (localPath path item)
+downloadEach :: FilePath -> File -> Api ()
+downloadEach path file = executeSync $ Download file (localPath path file)
 
 getVisibleDirectoryContents :: FilePath -> IO [FilePath]
 getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
@@ -117,5 +117,5 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
     visible ('.':_) = False
     visible _ = True
 
-localPath :: FilePath -> Item -> FilePath
-localPath p i = p </> T.unpack (itemTitle i)
+localPath :: FilePath -> File -> FilePath
+localPath p i = p </> T.unpack (fileTitle i)

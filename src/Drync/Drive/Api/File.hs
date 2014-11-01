@@ -1,7 +1,7 @@
 module Drync.Drive.Api.File
     ( FileId
     , Items(..)
-    , Item(..) -- TODO: rename to File?
+    , File(..)
     , getFile
     , createFolder
     , createFile
@@ -23,7 +23,7 @@ import Drync.Drive.Api.HTTP
 
 type FileId = Text
 
-newtype Items = Items [Item]
+newtype Items = Items [File]
 
 instance FromJSON Items where
     parseJSON (Object o) = Items
@@ -31,23 +31,23 @@ instance FromJSON Items where
 
     parseJSON _ = mzero
 
-data Item = Item
-    { itemId :: FileId
-    , itemTitle :: Text
-    , itemModified :: UTCTime
-    , itemParent :: Maybe FileId
-    , itemTrashed :: Bool
-    , itemDownloadUrl :: Maybe Text
+data File = File
+    { fileId :: FileId
+    , fileTitle :: Text
+    , fileModified :: UTCTime
+    , fileParent :: Maybe FileId
+    , fileTrashed :: Bool
+    , fileDownloadUrl :: Maybe Text
     }
 
-instance Eq Item where
-    a == b = itemId a == itemId b
+instance Eq File where
+    a == b = fileId a == fileId b
 
-instance Show Item where
-    show Item{..} = T.unpack $ itemTitle <> " (" <> itemId <> ")"
+instance Show File where
+    show File{..} = T.unpack $ fileTitle <> " (" <> fileId <> ")"
 
-instance FromJSON Item where
-    parseJSON (Object o) = Item
+instance FromJSON File where
+    parseJSON (Object o) = File
         <$> o .: "id"
         <*> o .: "title"
         <*> o .: "modifiedDate"
@@ -57,10 +57,10 @@ instance FromJSON Item where
 
     parseJSON _ = mzero
 
-getFile :: FileId -> Api (Maybe Item)
+getFile :: FileId -> Api (Maybe File)
 getFile fileId = simpleApi $ "/files/" <> T.unpack fileId
 
-createFolder :: FileId -> Text -> Api (Maybe Item)
+createFolder :: FileId -> Text -> Api (Maybe File)
 createFolder parentId name = do
     logApi $ "CREATE FOLDER " <> T.unpack parentId <> "/" <> T.unpack name
 
@@ -75,20 +75,20 @@ createFolder parentId name = do
     folderType = "application/vnd.google-apps.folder"
 
 -- TODO
-createFile :: FilePath -> Item -> Api FileId
+createFile :: FilePath -> File -> Api FileId
 createFile path parent = do
     logApi $ "CREATE " <> path <> " --> " <> show parent
 
     return "new"
 
 -- TODO
-updateFile :: FilePath -> Item -> Api ()
-updateFile path item =
-    logApi $ "UPDATE " <> path <> " --> " <> show item
+updateFile :: FilePath -> File -> Api ()
+updateFile path file =
+    logApi $ "UPDATE " <> path <> " --> " <> show file
 
-downloadFile :: Item -> FilePath -> Api ()
-downloadFile item path = case itemDownloadUrl item of
-    Nothing -> logApi $ show item <> " had no Download URL"
+downloadFile :: File -> FilePath -> Api ()
+downloadFile file path = case fileDownloadUrl file of
+    Nothing -> logApi $ show file <> " had no Download URL"
     Just url -> do
-        logApi $ "DOWNLOAD " <> show item <> " --> " <> path
+        logApi $ "DOWNLOAD " <> show file <> " --> " <> path
         authenticatedDownload (T.unpack url) path

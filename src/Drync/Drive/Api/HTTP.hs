@@ -79,14 +79,14 @@ postApi path body = do
     fmap (decode . responseBody) $ withManager $ httpLbs request
 
 authenticatedDownload :: URL -> FilePath -> Api ()
-authenticatedDownload url file = do
+authenticatedDownload url path = do
     request <- authorize =<< (liftIO $ parseUrl url)
 
-    liftIO $ createDirectoryIfMissing True $ takeDirectory file
+    liftIO $ createDirectoryIfMissing True $ takeDirectory path
 
     withManager $ \manager -> do
         response <- http request manager
-        responseBody response C.$$+- sinkFile file
+        responseBody response C.$$+- sinkFile path
 
 apiRequest :: Path -> Api Request
 apiRequest path = liftIO $ parseUrl $ baseUrl <> path

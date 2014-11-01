@@ -17,7 +17,7 @@ data Query
     | Query `And` Query
     | Query `Or` Query
 
-getFiles :: Query -> Api [Item]
+getFiles :: Query -> Api [File]
 getFiles query = do
     let query' =
             [ ("q", Just $ toParam query)
@@ -31,8 +31,8 @@ getFiles query = do
         Nothing -> []
 
   where
-    unTrashed :: [Item] -> [Item]
-    unTrashed = filter (not . itemTrashed)
+    unTrashed :: [File] -> [File]
+    unTrashed = filter (not . fileTrashed)
 
 toParam :: Query -> ByteString
 toParam (TitleEq title) = "title = " <> quote title
