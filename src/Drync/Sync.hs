@@ -11,6 +11,7 @@ import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Drive.Api
 import Network.Google.Drive.File
 import Network.Google.Drive.Search
+import Network.Google.OAuth2
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
@@ -20,8 +21,6 @@ import System.Directory
 import System.FilePath ((</>), takeFileName)
 
 import qualified Data.Text as T
-
-import Drync.Token (OAuth2Tokens)
 
 data Sync
     = Sync FilePath File

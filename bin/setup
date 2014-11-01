@@ -29,10 +29,7 @@ cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
 if [ ! -f src/Drync/Client.hs ]; then
   info "Writing Client.hs..."
   cat > src/Drync/Client.hs <<EOF
-module Drync.Client
-    ( OAuth2Client(..)
-    , client
-    ) where
+module Drync.Client (client) where
 
 import Network.Google.OAuth2 (OAuth2Client(..))
 
