@@ -1,4 +1,4 @@
-module Drync.Drive.Api.File
+module Network.Google.Drive.File
     ( FileId
     , Items(..)
     , File(..)
@@ -19,7 +19,7 @@ import Data.Time (UTCTime)
 
 import qualified Data.Text as T
 
-import Drync.Drive.Api.HTTP
+import Network.Google.Drive.Api
 
 type FileId = Text
 

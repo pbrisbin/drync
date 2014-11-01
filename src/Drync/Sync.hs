@@ -8,6 +8,9 @@ import Control.Monad (void, when)
 import Data.Monoid ((<>))
 import Data.Text (Text)
 import Data.Time (UTCTime, diffUTCTime)
+import Network.Google.Drive.Api
+import Network.Google.Drive.File
+import Network.Google.Drive.Search
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
@@ -19,9 +22,6 @@ import System.FilePath ((</>), takeFileName)
 import qualified Data.Text as T
 
 import Drync.Token (OAuth2Tokens)
-import Drync.Drive.Api.File
-import Drync.Drive.Api.HTTP
-import Drync.Drive.Api.Search
 
 data Sync
     = Sync FilePath File

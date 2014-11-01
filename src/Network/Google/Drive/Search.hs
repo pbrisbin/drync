@@ -1,4 +1,4 @@
-module Drync.Drive.Api.Search
+module Network.Google.Drive.Search
     ( Query(..)
     , getFiles
     ) where
@@ -8,8 +8,8 @@ import Data.Monoid ((<>))
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
 
-import Drync.Drive.Api.File
-import Drync.Drive.Api.HTTP
+import Network.Google.Drive.Api
+import Network.Google.Drive.File
 
 data Query
     = TitleEq Text

@@ -1,4 +1,4 @@
-module Drync.Drive.Api.HTTP
+module Network.Google.Drive.Api
     ( Api
     , Path
     , Params
