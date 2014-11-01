@@ -30,6 +30,8 @@ import Network.HTTP.Conduit
     , withManager
     )
 import Network.HTTP.Types (Header, Method, hAuthorization, hContentType)
+import System.Directory (createDirectoryIfMissing)
+import System.FilePath (takeDirectory)
 import System.IO (hPutStrLn, stderr)
 
 import qualified Data.ByteString.Char8 as C8
@@ -79,6 +81,8 @@ postApi path body = do
 authenticatedDownload :: URL -> FilePath -> Api ()
 authenticatedDownload url file = do
     request <- authorize =<< (liftIO $ parseUrl url)
+
+    liftIO $ createDirectoryIfMissing True $ takeDirectory file
 
     withManager $ \manager -> do
         response <- http request manager
