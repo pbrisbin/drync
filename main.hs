@@ -3,6 +3,8 @@ module Main where
 import System.Environment.XDG.BaseDir (getUserCacheDir)
 import System.FilePath ((</>), (<.>))
 
+import qualified Data.Text as T
+
 import Drync.Client
 import Drync.Options
 import Drync.Sync
@@ -15,7 +17,7 @@ main = do
     file <- tokenFile $ oProfile options
     tokens <- generateTokens (oRefresh options) client file
 
-    sync tokens (oSyncFrom options) (oSyncTo options)
+    sync tokens (oSyncFrom options) $ T.pack $ oSyncTo options
 
 appName :: String
 appName = "drync"
