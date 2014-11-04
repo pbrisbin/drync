@@ -34,7 +34,7 @@ sync tokens from to = runApi tokens $ do
     files <- getFiles $ TitleEq to `And` ParentEq "root"
 
     case files of
-        (file:_) -> executeSync (Sync from file)
+        (file:_) -> executeSync (SyncDirectory from file)
         _ -> logApiErr $ T.unpack to <> " does not exist"
 
 executeSync :: Sync -> Api ()
