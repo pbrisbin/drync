@@ -28,9 +28,14 @@ Available options:
 - [x] Creating files on remote
 - [x] Updating files on remote
 - [x] Downloading files from remote
+- [ ] In-line Network.Google.OAuth2
+- [ ] Extract Network.Google.Drive
+- [ ] Downloadable binaries
 
 **Enhancements**
 
+- [ ] Allow syncing to a nested folder (`--sync-to /foo/bar`)
+- [ ] Allow syncing the entire drive (`--sync-to /`)
 - [ ] Logging (`WriterT`, levels, etc)
 - [ ] Error handling (ignore, retry, etc)
 - [ ] Concurrency
