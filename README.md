@@ -28,7 +28,7 @@ Available options:
 - [x] Creating files on remote
 - [x] Updating files on remote
 - [x] Downloading files from remote
-- [ ] In-line Network.Google.OAuth2
+- [x] In-line Network.Google.OAuth2
 - [ ] Extract Network.Google.Drive
 - [ ] Downloadable binaries
 
@@ -40,6 +40,15 @@ Available options:
 - [ ] Error handling (ignore, retry, etc)
 - [ ] Concurrency
 
-## Development / Installation
+## Development Installation and Usage
 
-Use `bin/setup` to get started. Use `cabal run` to try it out.
+- Use the Google Developers Console to create a project
+- Enable OAuth2 for the project
+- Enable the Drive API for the project
+- Copy `files/Client.hs` to `src/Drync/Client.hs` and add your credentials
+
+```
+% cabal sandbox init
+% cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
+% cabal run -- --help
+```
