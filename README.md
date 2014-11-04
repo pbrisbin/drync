@@ -25,8 +25,8 @@ Available options:
 - [x] Command-line options
 - [x] Recursively finding files to sync
 - [x] Creating folders on remote
-- [ ] Creating files on remote
-- [ ] Updating files on remote
+- [x] Creating files on remote
+- [x] Updating files on remote
 - [x] Downloading files from remote
 
 **Enhancements**
