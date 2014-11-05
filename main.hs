@@ -15,9 +15,9 @@ main = do
     options <- getOptions
 
     file <- tokenFile $ oProfile options
-    tokens <- generateTokens client scopes (oRefresh options) file
+    token <- getAccessToken client scopes (oRefresh options) file
 
-    sync tokens (oSyncFrom options) $ T.pack $ oSyncTo options
+    sync token (oSyncFrom options) $ T.pack $ oSyncTo options
 
 appName :: String
 appName = "drync"

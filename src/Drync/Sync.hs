@@ -29,8 +29,8 @@ data Sync
     | Upload FilePath File
     | Download File FilePath
 
-sync :: OAuth2Tokens -> FilePath -> Text -> IO ()
-sync tokens from to = runApi tokens $ do
+sync :: OAuth2Token -> FilePath -> Text -> IO ()
+sync token from to = runApi token $ do
     files <- getFiles $ TitleEq to `And` ParentEq "root"
 
     case files of
