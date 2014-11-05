@@ -16,7 +16,7 @@ Library
   Exposed-Modules:      Drync.Client
                       , Drync.Options
                       , Drync.Sync
-                      , Conduit.Progress
+                      , Data.Conduit.Progress
                       , Network.Google.Drive.Api
                       , Network.Google.Drive.File
                       , Network.Google.Drive.Search

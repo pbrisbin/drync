@@ -1,4 +1,4 @@
-module Conduit.Progress
+module Data.Conduit.Progress
     ( reportProgress
     , reportProgressWith
     , defaultReporter
