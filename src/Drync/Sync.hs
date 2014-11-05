@@ -3,7 +3,7 @@ module Drync.Sync
     , sync
     ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), (<*>))
 import Control.Monad (void, when)
 import Data.Monoid ((<>))
 import Data.Text (Text)
@@ -39,10 +39,11 @@ sync token from to = runApi token $ do
 
 executeSync :: Sync -> Api ()
 executeSync (Sync path file) = do
-    isFile <- liftIO $ doesFileExist path
-    isDirectory <- liftIO $ doesDirectoryExist path
+    isFileDirectory <- liftIO $ (,)
+        <$> doesFileExist path
+        <*> doesDirectoryExist path
 
-    case (isFile, isDirectory) of
+    case isFileDirectory of
         (True, _) -> executeSync $ SyncFile path file
         (_, True) -> executeSync $ SyncDirectory path file
         _ -> logApiErr $ path <> " does not exist"
