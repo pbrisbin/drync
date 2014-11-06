@@ -52,8 +52,12 @@ executeSync (SyncFile path file) = do
 
     when (different localModified $ fileModified file) $
         if localModified > fileModified file
-            then updateFile path file
-            else downloadFile file path
+            then do
+                info $ "UPDATE " <> path <> " --> " <> show file
+                updateFile path file
+            else do
+                info $ "DOWNLOAD " <> show file <> " --> " <> path
+                downloadFile file path
 
   where
     -- Downloading or uploading results in a small difference in modification
@@ -63,6 +67,8 @@ executeSync (SyncFile path file) = do
     different x = (> 30) . abs . diffUTCTime x
 
 executeSync (SyncDirectory path file) = do
+    info $ "SYNC " <> path <> " <--> " <> show file
+
     files <- getFiles $ ParentEq (fileId file)
     paths <- liftIO $ getVisibleDirectoryContents path
 
@@ -76,6 +82,8 @@ executeSync (SyncDirectory path file) = do
     mapM_ (downloadEach path) remote
 
 executeSync (Download file path) = do
+    info $ "DOWNLOAD " <> show file <> " --> " <> path
+
     case fileDownloadUrl file of
         Just _ -> downloadFile file path
         Nothing -> do
@@ -83,6 +91,8 @@ executeSync (Download file path) = do
             mapM_ (downloadEach path) files
 
 executeSync (Upload path file) = do
+    info $ "UPLOAD " <> path <> " --> " <> show file <> "/"
+
     isDirectory <- liftIO $ doesDirectoryExist path
 
     if not isDirectory
@@ -116,3 +126,6 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
 
 localPath :: FilePath -> File -> FilePath
 localPath p i = p </> T.unpack (fileTitle i)
+
+info :: String -> Api ()
+info = liftIO . putStrLn
