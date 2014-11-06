@@ -1,8 +1,12 @@
 module Main where
 
+import Data.Monoid ((<>))
+import Network.Google.Drive.Api
 import Network.Google.OAuth2
 import System.Environment.XDG.BaseDir (getUserCacheDir)
 import System.FilePath ((</>), (<.>))
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 
 import qualified Data.Text as T
 
@@ -17,7 +21,17 @@ main = do
     file <- tokenFile $ oProfile options
     token <- getAccessToken client scopes (oRefresh options) file
 
-    sync token (oSyncFrom options) $ T.pack $ oSyncTo options
+    let from = oSyncFrom options
+        to = T.pack $ oSyncTo options
+
+    result <- runApi token $ sync from to
+
+    case result of
+        Left ex -> do
+            hPutStrLn stderr $ "error: " <> show ex
+            exitFailure
+
+        _ -> return ()
 
 appName :: String
 appName = "drync"

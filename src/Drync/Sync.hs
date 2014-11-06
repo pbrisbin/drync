@@ -11,7 +11,6 @@ import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Drive.Api
 import Network.Google.Drive.File
 import Network.Google.Drive.Search
-import Network.Google.OAuth2
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
@@ -29,13 +28,13 @@ data Sync
     | Upload FilePath File
     | Download File FilePath
 
-sync :: OAuth2Token -> FilePath -> Text -> IO ()
-sync token from to = runApi token $ do
+sync :: FilePath -> Text -> Api ()
+sync from to = do
     files <- getFiles $ TitleEq to `And` ParentEq "root"
 
     case files of
         (file:_) -> executeSync (SyncDirectory from file)
-        _ -> logApiErr $ T.unpack to <> " does not exist"
+        _ -> throwApiError $ T.unpack to <> " does not exist"
 
 executeSync :: Sync -> Api ()
 executeSync (Sync path file) = do
@@ -46,7 +45,7 @@ executeSync (Sync path file) = do
     case isFileDirectory of
         (True, _) -> executeSync $ SyncFile path file
         (_, True) -> executeSync $ SyncDirectory path file
-        _ -> logApiErr $ path <> " does not exist"
+        _ -> throwApiError $ path <> " does not exist"
 
 executeSync (SyncFile path file) = do
     localModified <- liftIO $ getModificationTime path
@@ -94,11 +93,9 @@ executeSync (Upload path file) = do
             let parentId = fileId file
                 name = T.pack $ takeFileName path
 
-            mfolder <- createFolder parentId name
+            folder <- createFolder parentId name
 
-            case mfolder of
-                Nothing -> logApiErr $ "Folder " <> T.unpack name <> " not created"
-                Just folder -> mapM_ (uploadEach folder . (path </>)) files
+            mapM_ (uploadEach folder . (path </>)) files
 
 syncEach :: FilePath -> File -> Api ()
 syncEach path file = executeSync $ Sync (localPath path file) file
