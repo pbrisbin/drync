@@ -17,9 +17,8 @@ Library
                       , Drync.Options
                       , Drync.Sync
                       , Data.Conduit.Progress
-                      , Network.Google.Drive.Api
+                      , Network.Google.Api
                       , Network.Google.Drive.File
-                      , Network.Google.Drive.Search
                       , Network.Google.Drive.Upload
                       , Network.Google.Drive.Upload.Multipart
                       , Network.Google.OAuth2
@@ -38,6 +37,7 @@ Library
                       , mime-types
                       , mtl
                       , optparse-applicative
+                      , resourcet
                       , text                               < 2.0
                       , time
                       , transformers

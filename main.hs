@@ -1,7 +1,7 @@
 module Main where
 
 import Data.Monoid ((<>))
-import Network.Google.Drive.Api
+import Network.Google.Api
 import Network.Google.OAuth2
 import System.Environment.XDG.BaseDir (getUserCacheDir)
 import System.FilePath ((</>), (<.>))

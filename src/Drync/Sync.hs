@@ -8,9 +8,8 @@ import Control.Monad (void, when)
 import Data.Monoid ((<>))
 import Data.Text (Text)
 import Data.Time (UTCTime, diffUTCTime)
-import Network.Google.Drive.Api
+import Network.Google.Api
 import Network.Google.Drive.File
-import Network.Google.Drive.Search
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
@@ -54,7 +53,7 @@ executeSync (SyncFile path file) = do
         if localModified > fileModified file
             then do
                 info $ "UPDATE " <> path <> " --> " <> show file
-                updateFile path file
+                void $ updateFile path file
             else do
                 info $ "DOWNLOAD " <> show file <> " --> " <> path
                 downloadFile file path
