@@ -29,7 +29,7 @@ Available options:
 - [x] Updating files on remote
 - [x] Downloading files from remote
 - [x] In-line Network.Google.OAuth2
-- [ ] Extract Network.Google.Drive
+- [ ] Extract sub-packages
 - [ ] Downloadable binaries
 
 **Enhancements**
@@ -37,8 +37,9 @@ Available options:
 - [ ] Allow syncing to a nested folder (`--sync-to /foo/bar`)
 - [ ] Allow syncing the entire drive (`--sync-to /`)
 - [ ] Logging (`WriterT`, levels, etc)
-- [ ] Error handling (ignore, retry, etc)
+- [x] Error handling
 - [ ] Concurrency
+- [ ] Resumable uploads
 
 ## Development Installation and Usage
 
@@ -52,3 +53,12 @@ Available options:
 % cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
 % cabal run -- --help
 ```
+
+## Packages
+
+Eventually, this project should split into the following packages:
+
+- `conduit-progress` - show progress as data moves through a conduit
+- `google-oath2` - token exchange logic
+- `google-api` - service agnostic Google API client
+- `google-drive` - API client specifically for the Drive API
