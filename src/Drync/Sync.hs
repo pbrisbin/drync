@@ -10,6 +10,7 @@ import Data.Text (Text)
 import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Api
 import Network.Google.Drive.File
+import Network.Google.Drive.Upload
 import System.Directory
     ( doesDirectoryExist
     , doesFileExist
@@ -26,6 +27,10 @@ data Sync
     | SyncDirectory FilePath File
     | Upload FilePath File
     | Download File FilePath
+
+-- TODO: pass this in from options
+uploadType :: UploadType
+uploadType = Resumable
 
 sync :: FilePath -> Text -> Api ()
 sync from to = do
@@ -46,17 +51,18 @@ executeSync (Sync path file) = do
         (_, True) -> executeSync $ SyncDirectory path file
         _ -> throwApiError $ path <> " does not exist"
 
-executeSync (SyncFile path file) = do
-    localModified <- liftIO $ getModificationTime path
+executeSync (SyncFile filePath file) = do
+    localModified <- liftIO $ getModificationTime filePath
 
     when (different localModified $ fileModified file) $
         if localModified > fileModified file
             then do
-                info $ "UPDATE " <> path <> " --> " <> show file
-                void $ updateFile path file
+                info $ "UPDATE " <> filePath <> " --> " <> show file
+                void $ updateFile uploadType file filePath
+
             else do
-                info $ "DOWNLOAD " <> show file <> " --> " <> path
-                downloadFile file path
+                info $ "DOWNLOAD " <> show file <> " --> " <> filePath
+                downloadFile file filePath
 
   where
     -- Downloading or uploading results in a small difference in modification
@@ -89,22 +95,22 @@ executeSync (Download file path) = do
             files <- getFiles $ ParentEq (fileId file)
             mapM_ (downloadEach path) files
 
-executeSync (Upload path file) = do
-    info $ "UPLOAD " <> path <> " --> " <> show file <> "/"
+executeSync (Upload filePath parent) = do
+    info $ "UPLOAD " <> filePath <> " --> " <> show parent <> "/"
 
-    isDirectory <- liftIO $ doesDirectoryExist path
+    isDirectory <- liftIO $ doesDirectoryExist filePath
 
     if not isDirectory
-        then void $ createFile path file
+        then void $ createFile uploadType parent filePath
         else do
-            files <- liftIO $ getVisibleDirectoryContents path
+            files <- liftIO $ getVisibleDirectoryContents filePath
 
-            let parentId = fileId file
-                name = T.pack $ takeFileName path
+            let parentId = fileId parent
+                name = T.pack $ takeFileName filePath
 
             folder <- createFolder parentId name
 
-            mapM_ (uploadEach folder . (path </>)) files
+            mapM_ (uploadEach folder . (filePath </>)) files
 
 syncEach :: FilePath -> File -> Api ()
 syncEach path file = executeSync $ Sync (localPath path file) file
