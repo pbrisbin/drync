@@ -29,17 +29,20 @@ Available options:
 - [x] Updating files on remote
 - [x] Downloading files from remote
 - [x] In-line Network.Google.OAuth2
-- [ ] Extract sub-packages
-- [ ] Downloadable binaries
+- [x] Up/Download progress reporting
+- [x] Resumable uploads
+- [ ] Resumable upload retries
+- [ ] Up/Download throttling
 
 **Enhancements**
 
+- [ ] Extract sub-packages
+- [ ] Downloadable binaries
 - [ ] Allow syncing to a nested folder (`--sync-to /foo/bar`)
 - [ ] Allow syncing the entire drive (`--sync-to /`)
 - [ ] Logging (`WriterT`, levels, etc)
 - [x] Error handling
 - [ ] Concurrency
-- [ ] Resumable uploads
 
 ## Development Installation and Usage
 
