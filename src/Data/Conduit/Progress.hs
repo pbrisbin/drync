@@ -11,25 +11,25 @@ import Data.Monoid ((<>))
 import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
 import System.IO (hFlush, stdout)
 
-type Unit = Int
+type Units = Int
 
 data Progress = Progress
     { progressStart :: !UTCTime
     , progressNow :: !UTCTime
-    , progressCurrent :: !Unit
-    , progressTotal :: !Unit
+    , progressCurrent :: !Units
+    , progressTotal :: !Units
     }
 
 type Reporter = Progress -> IO ()
 
-reportProgress :: MonadIO m => (i -> Unit) -> Unit -> Unit -> Conduit i m i
+reportProgress :: MonadIO m => (i -> Units) -> Units -> Units -> Conduit i m i
 reportProgress = reportProgressWith defaultReporter
 
 reportProgressWith :: MonadIO m
                    => Reporter
-                   -> (i -> Unit)
-                   -> Unit
-                   -> Unit
+                   -> (i -> Units)
+                   -> Units
+                   -> Units
                    -> Conduit i m i
 reportProgressWith reporter len total each = do
     now <- liftIO $ getCurrentTime
