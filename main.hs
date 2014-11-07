@@ -28,7 +28,7 @@ main = do
 
     case result of
         Left ex -> do
-            hPutStrLn stderr $ "error: " <> show ex
+            hPutStrLn stderr $ "API Error: " <> show ex
             exitFailure
 
         _ -> return ()
