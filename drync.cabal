@@ -17,6 +17,7 @@ Library
                       , Drync.Options
                       , Drync.Sync
                       , Data.Conduit.Progress
+                      , Data.Conduit.Throttle
                       , Network.Google.Api
                       , Network.Google.Drive.File
                       , Network.Google.Drive.Upload
