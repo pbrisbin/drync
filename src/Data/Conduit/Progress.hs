@@ -65,7 +65,7 @@ reportProgressWith reporter len total each = do
 
 defaultReporter :: Reporter
 defaultReporter p = rewrite $ bar p 50 <>
-    constrain 15 (show $ speed p) <> " per second" <>
+    constrain 15 (show $ roundedSpeed p) <> " per second" <>
     constrain 10 (showTime $ remaining p) <> " remaining"
 
 rewrite :: String -> IO ()
@@ -87,16 +87,19 @@ bar Progress{..} width = "[" <> bars <> "]"
     percent = fromIntegral progressCurrent / fromIntegral progressTotal
 
 -- | Units per second
-speed :: Progress -> Int
-speed p@Progress{..} = progressCurrent `divide` elapsed p
+speed :: Progress -> Double
+speed p@Progress{..} = fromIntegral progressCurrent / elapsed p
+
+roundedSpeed :: Progress -> Int
+roundedSpeed p = round $ speed p
 
 -- | Seconds elapsed
-elapsed :: Progress -> Int
-elapsed Progress{..} = round $ diffUTCTime progressNow progressStart
+elapsed :: Progress -> Double
+elapsed Progress{..} = realToFrac $ diffUTCTime progressNow progressStart
 
 -- | Seconds remaining
 remaining :: Progress -> Int
-remaining p@Progress{..} = left `divide` speed p
+remaining p@Progress{..} = round $ fromIntegral left / speed p
   where
     left :: Int
     left = progressTotal - progressCurrent
@@ -114,9 +117,6 @@ showTime seconds
     showMinutes =
         let (m, s) = seconds `divMod` 60
         in show m <> "m" <> showTime s
-
-divide :: (Integral a, Integral b) => a -> b -> Int
-divide a b = round $ (fromIntegral a :: Double) / (fromIntegral b :: Double)
 
 constrain :: Int -> String -> String
 constrain n s
