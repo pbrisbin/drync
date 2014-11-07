@@ -30,7 +30,7 @@ data Sync
 
 -- TODO: pass this in from options
 uploadType :: UploadType
-uploadType = Multipart -- Resumable
+uploadType = Resumable
 
 sync :: FilePath -> Text -> Api ()
 sync from to = do
