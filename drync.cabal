@@ -38,6 +38,7 @@ Library
                       , mime-types
                       , mtl
                       , optparse-applicative
+                      , random
                       , resourcet
                       , text                               < 2.0
                       , time
