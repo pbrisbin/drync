@@ -32,7 +32,10 @@ main = do
                 if oThrottle options /= 0
                     then Just $ oThrottle options * 1000
                     else Nothing
-            , apiProgress = Just $ oProgress options
+            , apiProgress =
+                if oProgress options /= 0
+                    then Just $ oProgress options
+                    else Nothing
             , apiDebug = oDebug options
             }
 
