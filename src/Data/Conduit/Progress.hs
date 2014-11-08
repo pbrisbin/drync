@@ -46,7 +46,7 @@ reportProgressWith :: MonadIO m
                    -> Units        -- ^ Report progess every this many units
                    -> Conduit e m e
 reportProgressWith reporter len total each = do
-    now <- liftIO $ getCurrentTime
+    now <- liftIO getCurrentTime
 
     loop Progress
         { progressStart = now
@@ -62,7 +62,7 @@ reportProgressWith reporter len total each = do
         case mv of
             Nothing -> return ()
             Just v -> do
-                now <- liftIO $ getCurrentTime
+                now <- liftIO getCurrentTime
 
                 let p' = increment (len v) now p
 

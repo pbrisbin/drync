@@ -75,7 +75,7 @@ executeSync (SyncDirectory path file) = do
 
     -- probably inefficient but hopefuly these are small enough lists
     let both = filter ((`elem` paths) . T.unpack . fileTitle) files
-        local = filter ((`notElem` (map fileTitle both)) . T.pack) paths
+        local = filter ((`notElem` map fileTitle both) . T.pack) paths
         remote = filter (`notElem` both) files
 
     mapM_ (syncEach path) both

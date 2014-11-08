@@ -38,7 +38,7 @@ limitSpeed limit total start = do
     let elapsed = realToFrac $ diffUTCTime now start :: Double
         speed = fromIntegral total / elapsed
 
-    when (speed > (fromIntegral limit)) $ do
+    when (speed > fromIntegral limit) $ do
         threadDelay $ 100 * 1000 -- block 0.1 seconds and check again
         limitSpeed limit total start
 
