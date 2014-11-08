@@ -4,13 +4,16 @@ module Data.Conduit.Throttle
 
 import Control.Concurrent (threadDelay)
 import Control.Monad (when)
-import Control.Monad.IO.Class
-import Data.Conduit
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.Conduit (Conduit, await, yield)
 import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
 
 type Units = Int
 
-throttle :: MonadIO m => (i -> Units) -> Units -> Conduit i m i
+throttle :: MonadIO m
+         => (e -> Units) -- ^ How many units per element?
+         -> Units        -- ^ Limit to this many per second
+         -> Conduit e m e
 throttle len limit = loop 0 =<< liftIO getCurrentTime
 
   where

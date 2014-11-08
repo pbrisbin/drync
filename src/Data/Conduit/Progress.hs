@@ -1,11 +1,24 @@
 module Data.Conduit.Progress
     ( reportProgress
     , reportProgressWith
+
+    -- * Reporters
     , defaultReporter
+
+    -- * Reporter helpers
+    , bar
+    , speed
+    , roundedSpeed
+    , elapsed
+    , remaining
+    , rewrite
+    , showTime
+    , constrain
+    , pad
     ) where
 
 import Control.Monad (when)
-import Control.Monad.IO.Class
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Conduit (Conduit, await, yield)
 import Data.Monoid ((<>))
 import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
@@ -22,15 +35,16 @@ data Progress = Progress
 
 type Reporter = Progress -> IO ()
 
+-- | See @'reportProgressWith'@ for a description of arguments
 reportProgress :: MonadIO m => (i -> Units) -> Units -> Units -> Conduit i m i
 reportProgress = reportProgressWith defaultReporter
 
 reportProgressWith :: MonadIO m
                    => Reporter
-                   -> (i -> Units)
-                   -> Units
-                   -> Units
-                   -> Conduit i m i
+                   -> (e -> Units) -- ^ How many units per element
+                   -> Units        -- ^ Total units we're working toward
+                   -> Units        -- ^ Report progess every this many units
+                   -> Conduit e m e
 reportProgressWith reporter len total each = do
     now <- liftIO $ getCurrentTime
 
@@ -63,6 +77,10 @@ reportProgressWith reporter len total each = do
         , progressCurrent = progressCurrent p + units
         }
 
+-- | A single, self-overwriting line:
+--
+-- > [###      ]   42 per second,   2m3s remaining
+--
 defaultReporter :: Reporter
 defaultReporter p = rewrite $ bar p 50 <>
     constrain 15 (show $ roundedSpeed p) <> " per second" <>
@@ -104,6 +122,7 @@ remaining p@Progress{..} = round $ fromIntegral left / speed p
     left :: Int
     left = progressTotal - progressCurrent
 
+-- | Convert seconds to (e.g.) "1m12m54s"
 showTime :: Int -> String
 showTime seconds
     | seconds >= 3600 = showHours
@@ -118,6 +137,7 @@ showTime seconds
         let (m, s) = seconds `divMod` 60
         in show m <> "m" <> showTime s
 
+-- | Pad a value, and prevent overflow
 constrain :: Int -> String -> String
 constrain n s
     | length s > n = pad n ""
