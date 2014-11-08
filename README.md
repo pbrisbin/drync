@@ -41,6 +41,6 @@ Eventually, this project should split into the following packages:
 
 - `conduit-progress` - show progress as data moves through a conduit
 - `conduit-throttle` - throttle data as it moves through a conduit
-- `google-oath2` - token exchange logic
-- `google-api` - service agnostic Google API client
+- `google-oauth2` - token exchange logic
+- `google-api` - service-agnostic Google API client
 - `google-drive` - API client specifically for the Drive API
