@@ -31,8 +31,8 @@ Available options:
 - [x] In-line Network.Google.OAuth2
 - [x] Up/Download progress reporting
 - [x] Resumable uploads
-- [ ] Resumable upload retries
-- [ ] Up/Download throttling
+- [x] Resumable upload retries
+- [x] Up/Download throttling
 
 **Enhancements**
 

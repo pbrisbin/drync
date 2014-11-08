@@ -13,6 +13,10 @@ data Options = Options
     , oRefresh :: Bool
     , oSyncFrom :: FilePath
     , oSyncTo :: String
+    , oMultipart :: Bool
+    , oThrottle :: Int
+    , oProgress :: Int
+    , oDebug :: Bool
     }
 
 getOptions :: IO Options
@@ -59,4 +63,28 @@ parseOptions cwd = Options
         <> metavar "FOLDER"
         <> value ""
         <> help "Sync to the given folder"
+        )
+    <*> switch
+        (  short 'm'
+        <> long "multipart"
+        <> help "Use multipart uploads instead of resumable"
+        )
+    <*> option auto
+        (  short 'T'
+        <> long "throttle"
+        <> metavar "N"
+        <> value 0
+        <> help "Throttle HTTP to N KB/s"
+        )
+    <*> option auto
+        (  short 'P'
+        <> long "progress"
+        <> metavar "N"
+        <> value 100
+        <> help "Output transfer progress every N bytes"
+        )
+    <*> switch
+        (  short 'd'
+        <> long "debug"
+        <> help "Output debugging messages"
         )

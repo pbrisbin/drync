@@ -21,10 +21,22 @@ main = do
     file <- tokenFile $ oProfile options
     token <- getAccessToken client scopes (oRefresh options) file
 
-    let from = oSyncFrom options
-        to = T.pack $ oSyncTo options
+    let syncFrom = oSyncFrom options
+        syncTo = T.pack $ oSyncTo options
+        apiOptions = def
+            { apiUploadType =
+                if oMultipart options
+                    then Multipart
+                    else Resumable
+            , apiThrottle =
+                if oThrottle options /= 0
+                    then Just $ oThrottle options * 1000
+                    else Nothing
+            , apiProgress = Just $ oProgress options
+            , apiDebug = oDebug options
+            }
 
-    result <- runApi token $ sync from to
+    result <- runApi token apiOptions $ sync syncFrom syncTo
 
     case result of
         Left ex -> do

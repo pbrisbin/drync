@@ -28,10 +28,6 @@ data Sync
     | Upload FilePath File
     | Download File FilePath
 
--- TODO: pass this in from options
-uploadType :: UploadType
-uploadType = Resumable
-
 sync :: FilePath -> Text -> Api ()
 sync from to = do
     files <- getFiles $ TitleEq to `And` ParentEq "root"
@@ -58,7 +54,7 @@ executeSync (SyncFile filePath file) = do
         if localModified > fileModified file
             then do
                 info $ "UPDATE " <> filePath <> " --> " <> show file
-                void $ updateFile uploadType file filePath
+                void $ updateFile file filePath
 
             else do
                 info $ "DOWNLOAD " <> show file <> " --> " <> filePath
@@ -101,7 +97,7 @@ executeSync (Upload filePath parent) = do
     isDirectory <- liftIO $ doesDirectoryExist filePath
 
     if not isDirectory
-        then void $ createFile uploadType parent filePath
+        then void $ createFile parent filePath
         else do
             files <- liftIO $ getVisibleDirectoryContents filePath
 

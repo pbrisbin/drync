@@ -31,6 +31,7 @@ Library
                       , containers
                       , conduit
                       , conduit-extra
+                      , data-default
                       , directory
                       , filepath
                       , http-client
