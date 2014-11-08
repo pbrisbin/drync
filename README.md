@@ -2,11 +2,12 @@
 
 ![drynk](images/boozetime.gif)
 
-Sync a local directory with Google Drive. Very alpha. Beware.
+Sync a local directory with Google Drive. Very beta. Beware.
 
 ```
 Usage: drync [-p|--profile NAME] [-r|--refresh-oauth] [-f|--sync-from DIR]
-             [-t|--sync-to FOLDER]
+             [-t|--sync-to FOLDER] [-m|--multipart] [-T|--throttle N]
+             [-P|--progress N] [-d|--debug]
   Sync a local directory with one on Google Drive
 
 Available options:
@@ -15,34 +16,11 @@ Available options:
   -r,--refresh-oauth       Ignore cached OAuth2 credentials
   -f,--sync-from DIR       Sync from the given directory
   -t,--sync-to FOLDER      Sync to the given folder
+  -m,--multipart           Use multipart uploads instead of resumable
+  -T,--throttle N          Throttle HTTP to N KB/s
+  -P,--progress N          Output transfer progress every N bytes
+  -d,--debug               Output debugging messages
 ```
-
-## Features
-
-**MVP**
-
-- [x] OAuth2 negotiation and token auth
-- [x] Command-line options
-- [x] Recursively finding files to sync
-- [x] Creating folders on remote
-- [x] Creating files on remote
-- [x] Updating files on remote
-- [x] Downloading files from remote
-- [x] In-line Network.Google.OAuth2
-- [x] Up/Download progress reporting
-- [x] Resumable uploads
-- [x] Resumable upload retries
-- [x] Up/Download throttling
-
-**Enhancements**
-
-- [ ] Extract sub-packages
-- [ ] Downloadable binaries
-- [ ] Allow syncing to a nested folder (`--sync-to /foo/bar`)
-- [ ] Allow syncing the entire drive (`--sync-to /`)
-- [ ] Logging (`WriterT`, levels, etc)
-- [x] Error handling
-- [ ] Concurrency
 
 ## Development Installation and Usage
 
@@ -62,6 +40,7 @@ Available options:
 Eventually, this project should split into the following packages:
 
 - `conduit-progress` - show progress as data moves through a conduit
+- `conduit-throttle` - throttle data as it moves through a conduit
 - `google-oath2` - token exchange logic
 - `google-api` - service agnostic Google API client
 - `google-drive` - API client specifically for the Drive API
