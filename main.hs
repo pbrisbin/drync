@@ -1,6 +1,5 @@
 module Main where
 
-import Data.Monoid ((<>))
 import Network.Google.Api
 import Network.Google.OAuth2
 import System.Environment.XDG.BaseDir (getUserCacheDir)
@@ -8,11 +7,9 @@ import System.FilePath ((</>), (<.>))
 import System.Exit (exitFailure)
 import System.IO (hPutStrLn, stderr)
 
-import qualified Data.Text as T
-
+import Drync
 import Drync.Client
 import Drync.Options
-import Drync.Sync
 
 main :: IO ()
 main = do
@@ -21,32 +18,16 @@ main = do
     file <- tokenFile $ oProfile options
     token <- getAccessToken client scopes (oRefresh options) file
 
-    let syncFrom = oSyncFrom options
-        syncTo = T.pack $ oSyncTo options
-        apiOptions = def
-            { apiUploadType =
-                if oMultipart options
-                    then Multipart
-                    else Resumable
-            , apiThrottle =
-                if oThrottle options /= 0
-                    then Just $ oThrottle options * 1000
-                    else Nothing
-            , apiProgress =
-                if oProgress options /= 0
-                    then Just $ oProgress options
-                    else Nothing
-            , apiDebug = oDebug options
-            }
+    -- TODO: Find root or nested folder
+    let syncTo = undefined
 
-    result <- runApi token apiOptions $ sync syncFrom syncTo
+    result <- runApi token (oDebug options) $ sync (oSyncFrom options) syncTo
 
     case result of
+        Right _ -> return ()
         Left ex -> do
-            hPutStrLn stderr $ "API Error: " <> show ex
+            hPutStrLn stderr $ show ex
             exitFailure
-
-        _ -> return ()
 
 appName :: String
 appName = "drync"
