@@ -3,7 +3,7 @@ module Drync where
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad (forM_, when, void)
 import Data.Conduit
-import Data.Conduit.Binary (sinkFile, sourceFile)
+import Data.Conduit.Binary (sinkFile, sourceFileRange)
 import Data.Monoid ((<>))
 import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Api
@@ -61,7 +61,8 @@ syncDirectory = undefined --filePath file = do
 update :: File -> FilePath -> Api ()
 update file filePath = do
     size <- liftIO $ withFile filePath ReadMode hFileSize
-    void $ uploadFile file (fromIntegral size) $ sourceFile filePath
+    void $ uploadFile file (fromIntegral size) $ \c ->
+        sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
 
 upload :: FilePath -> FileId -> Api ()
 upload filePath parent = do
@@ -71,7 +72,8 @@ upload filePath parent = do
         else do
             size <- liftIO $ withFile filePath ReadMode hFileSize
             fdata <- newFile parent filePath
-            void $ uploadNewFile fdata (fromIntegral size) $ sourceFile filePath
+            void $ uploadNewFile fdata (fromIntegral size) $ \c ->
+                sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
 
 uploadDirectory :: FilePath -> FileId -> Api ()
 uploadDirectory filePath parent = do
