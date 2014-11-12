@@ -6,8 +6,8 @@ Sync a local directory with Google Drive. Very beta. Beware.
 
 ```
 Usage: drync [-p|--profile NAME] [-r|--refresh-oauth] [-f|--sync-from DIR]
-             [-t|--sync-to FOLDER] [-m|--multipart] [-T|--throttle N]
-             [-P|--progress N] [-d|--debug]
+             [-t|--sync-to FOLDER] [-T|--throttle N] [-P|--progress N]
+             [-d|--debug]
   Sync a local directory with one on Google Drive
 
 Available options:
@@ -16,7 +16,6 @@ Available options:
   -r,--refresh-oauth       Ignore cached OAuth2 credentials
   -f,--sync-from DIR       Sync from the given directory
   -t,--sync-to FOLDER      Sync to the given folder
-  -m,--multipart           Use multipart uploads instead of resumable
   -T,--throttle N          Throttle HTTP to N KB/s
   -P,--progress N          Output transfer progress every N bytes
   -d,--debug               Output debugging messages
