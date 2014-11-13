@@ -21,6 +21,8 @@ Available options:
   -d,--debug               Output debugging messages
 ```
 
+*Some options are ignored for now*
+
 ## Development Installation and Usage
 
 - Use the Google Developers Console to create a project
@@ -40,6 +42,5 @@ Eventually, this project should split into the following packages:
 
 - `conduit-progress` - show progress as data moves through a conduit
 - `conduit-throttle` - throttle data as it moves through a conduit
-- `google-oauth2` - token exchange logic
 - `google-api` - service-agnostic Google API client
 - `google-drive` - API client specifically for the Drive API
