@@ -27,10 +27,7 @@ main = do
         else fmap Just $ tokenFile $ oProfile options
 
     token <- getAccessToken client scopes mfile
-
-    -- TODO: Find root or nested folder
-    let syncTo = undefined
-
+    syncTo <- getFile "root"
     result <- runApi token (oDebug options) $ sync (oSyncFrom options) syncTo
 
     case result of
