@@ -15,8 +15,11 @@ main :: IO ()
 main = do
     options <- getOptions
 
-    file <- tokenFile $ oProfile options
-    token <- getAccessToken client scopes (oRefresh options) file
+    mfile <- if oRefresh options
+        then return Nothing
+        else fmap Just $ tokenFile $ oProfile options
+
+    token <- getAccessToken client scopes mfile
 
     -- TODO: Find root or nested folder
     let syncTo = undefined
