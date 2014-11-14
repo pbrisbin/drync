@@ -31,7 +31,7 @@ main = do
 
     result <- runApi token (oDebug options) $ do
         syncTo <- getFile "root"
-        sync (oSyncFrom options) syncTo
+        runSync options $ sync (oSyncFrom options) syncTo
 
     case result of
         Right _ -> return ()

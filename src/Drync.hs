@@ -15,7 +15,14 @@ import System.IO
 
 import qualified Data.Text as T
 
-sync :: FilePath -> File -> Api ()
+import Drync.Options
+
+type Sync = ReaderT Options Api
+
+runSync :: Options -> Sync a -> Api a
+runSync = flip runReaderT
+
+sync :: FilePath -> File -> Sync ()
 sync filePath file = do
     isFileDirectory <- liftIO $ (,)
         <$> doesFileExist filePath
@@ -24,9 +31,9 @@ sync filePath file = do
     case isFileDirectory of
         (True, _) -> syncFile filePath file
         (_, True) -> syncDirectory filePath file
-        _ -> throwApiError $ "File not found: " <> filePath
+        _ -> lift $ throwApiError $ "File not found: " <> filePath
 
-syncFile :: FilePath -> File -> Api ()
+syncFile :: FilePath -> File -> Sync ()
 syncFile filePath file = do
     modified <- liftIO $ getModificationTime filePath
     let rmodified = fileModified $ fileData file
@@ -42,49 +49,51 @@ syncFile filePath file = do
     different :: UTCTime -> UTCTime -> Bool
     different x = (> 30) . abs . diffUTCTime x
 
-syncDirectory :: FilePath -> File -> Api ()
+syncDirectory :: FilePath -> File -> Sync ()
 syncDirectory = undefined --filePath file = do
     -- paths <- liftIO $ getVisibleDirectoryContents filePath
-    -- files <- listFiles $ ParentEq (fileId file)
+    -- files <- lift $ listFiles $ ParentEq (fileId file)
 
     -- probably inefficient but hopefuly these are small enough lists
     -- let both = filter ((`elem` paths) . T.unpack . fileTitle) files
     --     local = filter ((`notElem` map fileTitle both) . T.pack) paths
     --     remote = filter (`notElem` both) files
 
-update :: File -> FilePath -> Api ()
+update :: File -> FilePath -> Sync ()
 update file filePath = do
     size <- liftIO $ withFile filePath ReadMode hFileSize
-    void $ uploadFile file (fromIntegral size) $ \c ->
+    void $ lift $ uploadFile file (fromIntegral size) $ \c ->
         sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
 
-upload :: FilePath -> FileId -> Api ()
+upload :: FilePath -> FileId -> Sync ()
 upload filePath parent = do
     isDirectory <- liftIO $ doesDirectoryExist filePath
     if isDirectory
         then uploadDirectory filePath parent
         else do
             size <- liftIO $ withFile filePath ReadMode hFileSize
-            fdata <- newFile parent filePath
-            void $ uploadNewFile fdata (fromIntegral size) $ \c ->
-                sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
+            lift $ do
+                fdata <- newFile parent filePath
+                void $ uploadNewFile fdata (fromIntegral size) $ \c ->
+                    sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
 
-uploadDirectory :: FilePath -> FileId -> Api ()
+uploadDirectory :: FilePath -> FileId -> Sync ()
 uploadDirectory filePath parent = do
     paths <- liftIO $ getVisibleDirectoryContents filePath
-    folder <- insertFile =<<
+    folder <- lift $ insertFile =<<
         newFolder parent (T.pack $ takeFileName filePath)
     forM_ paths $ \path -> upload (filePath </> path) $ fileId folder
 
-download :: File -> FilePath -> Api ()
+download :: File -> FilePath -> Sync ()
 download file filePath =
     case fileDownloadUrl $ fileData file of
         Nothing -> downloadDirectory file filePath
-        Just url -> getSource (T.unpack url) [] $ ($$+- sinkFile filePath)
+        Just url -> lift $
+            getSource (T.unpack url) [] $ ($$+- sinkFile filePath)
 
-downloadDirectory :: File -> FilePath -> Api ()
+downloadDirectory :: File -> FilePath -> Sync ()
 downloadDirectory file filePath = do
-    files <- listFiles $ ParentEq (fileId file)
+    files <- lift $ listFiles $ ParentEq (fileId file)
     liftIO $ createDirectoryIfMissing True filePath
     forM_ files $ \f ->
         download f $ filePath </> (T.unpack $ fileTitle $ fileData f)
@@ -97,8 +106,14 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
     visible ('.':_) = False
     visible _ = True
 
-info :: String -> Api ()
+info :: String -> Sync ()
 info = liftIO . putStrLn
+
+debug :: String -> Sync ()
+debug msg = do
+    d <- fmap oDebug ask
+
+    when d $ liftIO $ hPutStrLn stderr msg
 
 --
 -- TODO: Progress/Throttling
