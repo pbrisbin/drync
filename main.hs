@@ -1,6 +1,7 @@
 module Main where
 
 import Network.Google.Api
+import Network.Google.Drive.File
 import Network.Google.OAuth2
 import System.Environment.XDG.BaseDir
 import System.Exit
@@ -27,8 +28,10 @@ main = do
         else fmap Just $ tokenFile $ oProfile options
 
     token <- getAccessToken client scopes mfile
-    syncTo <- getFile "root"
-    result <- runApi token (oDebug options) $ sync (oSyncFrom options) syncTo
+
+    result <- runApi token (oDebug options) $ do
+        syncTo <- getFile "root"
+        sync (oSyncFrom options) syncTo
 
     case result of
         Right _ -> return ()
