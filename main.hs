@@ -2,10 +2,10 @@ module Main where
 
 import Network.Google.Api
 import Network.Google.OAuth2
-import System.Environment.XDG.BaseDir (getUserCacheDir)
-import System.FilePath ((</>), (<.>))
-import System.Exit (exitFailure)
-import System.IO (hPutStrLn, stderr)
+import System.Environment.XDG.BaseDir
+import System.Exit
+import System.FilePath
+import System.IO
 
 import Drync
 import Drync.Client

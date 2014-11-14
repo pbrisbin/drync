@@ -1,23 +1,17 @@
 module Drync where
 
-import Control.Applicative ((<$>), (<*>))
-import Control.Monad (forM_, when, void)
+import Control.Applicative
+import Control.Monad.Reader
 import Data.Conduit
-import Data.Conduit.Binary (sinkFile, sourceFileRange)
-import Data.Monoid ((<>))
-import Data.Time (UTCTime, diffUTCTime)
+import Data.Conduit.Binary
+import Data.Monoid
+import Data.Time
 import Network.Google.Api
 import Network.Google.Drive.File
 import Network.Google.Drive.Upload
 import System.Directory
-    ( createDirectoryIfMissing
-    , doesDirectoryExist
-    , doesFileExist
-    , getDirectoryContents
-    , getModificationTime
-    )
-import System.FilePath ((</>), takeFileName)
-import System.IO (IOMode(..), hFileSize, withFile)
+import System.FilePath
+import System.IO
 
 import qualified Data.Text as T
 
