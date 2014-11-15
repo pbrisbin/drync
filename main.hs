@@ -14,7 +14,6 @@ import Drync.Options
 
 -- TODO
 --
--- * support --sync-to again
 -- * support --throttle again
 -- * support --progress again
 -- * support --exclude
@@ -28,8 +27,7 @@ main = do
         else fmap Just $ tokenFile $ oProfile options
 
     token <- getAccessToken client scopes mfile
-
-    result <- runApi token (oDebug options) $ do
+    result <- runApi token $ do
         syncTo <- getFile "root"
         runSync options $ sync (oSyncFrom options) syncTo
 
