@@ -21,7 +21,6 @@ Library
                       , Network.Google.Api
                       , Network.Google.Drive.File
                       , Network.Google.Drive.Upload
-                      , Network.Google.OAuth2
   Build-Depends:        base            >= 4            && < 5
                       , HTTP            >= 4000.2       && < 4000.3
                       , aeson           >= 0.8          && < 0.9
@@ -70,6 +69,7 @@ Executable drync
                       , bytestring
                       , directory
                       , filepath
+                      , google-oauth2
                       , text
                       , xdg-basedir
   Default-Extensions:   OverloadedStrings
