@@ -10,7 +10,7 @@ data Options = Options
     { oProfile :: String
     , oRefresh :: Bool
     , oSyncFrom :: FilePath
-    , oSyncTo :: String
+    , oExcludes :: [String]
     , oThrottle :: Int
     , oProgress :: Int
     , oDebug :: Bool
@@ -48,13 +48,12 @@ parseOptions cwd = Options
         <> value cwd
         <> help "Sync from the given directory"
         )
-    <*> strOption
-        (  short 't'
-        <> long "sync-to"
-        <> metavar "FOLDER"
-        <> value ""
-        <> help "Sync to the given folder"
-        )
+    <*> some (strOption
+        (  short 'x'
+        <> long "exclude"
+        <> metavar "PATTERN"
+        <> help "Exclude files and folders matching PATTERN"
+        ))
     <*> option auto
         (  short 'T'
         <> long "throttle"
