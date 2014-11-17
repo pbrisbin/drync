@@ -117,16 +117,15 @@ upload filePath file = do
     size <- liftIO $ withFile filePath ReadMode hFileSize
     void $ lift $ uploadFile file (fromIntegral size) $ \c ->
         uploadSourceFile filePath c
-        $= withProgress p (Just $ fromIntegral size)
         $= throttled t
+        $= withProgress p (Just $ fromIntegral size)
 
 download :: File -> FilePath -> Sync ()
 download file filePath =
     case fileDownloadUrl $ fileData file of
         Nothing -> do
-            debug $ "No download URL: " <> show file
-            debug   "Assuming directory..."
-            downloadDirectory file filePath
+            when (isFolder file) $
+                downloadDirectory file filePath
         Just url -> do
             t <- asks oThrottle
             p <- asks oProgress
