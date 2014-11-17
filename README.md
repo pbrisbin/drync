@@ -5,8 +5,11 @@
 Sync a local directory with Google Drive. Very beta. Beware.
 
 ```
+Preprocessing library drync-0.0.0...
+In-place registering drync-0.0.0...
+Preprocessing executable 'drync' for drync-0.0.0...
 Usage: drync [-p|--profile NAME] [-r|--refresh-oauth] [-f|--sync-from DIR]
-             [-t|--sync-to FOLDER] [-T|--throttle N] [-P|--progress N]
+             [-x|--exclude PATTERN] [-T|--throttle N] [-P|--progress N]
              [-d|--debug]
   Sync a local directory with one on Google Drive
 
@@ -15,13 +18,11 @@ Available options:
   -p,--profile NAME        Use the named profile
   -r,--refresh-oauth       Ignore cached OAuth2 credentials
   -f,--sync-from DIR       Sync from the given directory
-  -t,--sync-to FOLDER      Sync to the given folder
+  -x,--exclude PATTERN     Exclude files and folders matching PATTERN
   -T,--throttle N          Throttle HTTP to N KB/s
   -P,--progress N          Output transfer progress every N bytes
   -d,--debug               Output debugging messages
 ```
-
-*Some options are ignored for now*
 
 ## Development Installation and Usage
 
