@@ -1,10 +1,14 @@
 module Drync where
 
 import Control.Applicative
-import Control.Monad.Reader
+import Control.Monad.Reader hiding (local)
+import Data.ByteString (ByteString)
 import Data.Conduit
-import Data.Conduit.Binary
+import Data.Conduit.Binary hiding (mapM_)
+import Data.Conduit.Progress
+import Data.Conduit.Throttle
 import Data.Monoid
+import Data.List
 import Data.Time
 import Network.Google.Api
 import Network.Google.Drive.File
@@ -14,6 +18,7 @@ import System.FilePath
 import System.IO
 
 import qualified Data.Text as T
+import qualified Data.ByteString as B
 
 import Drync.Options
 
@@ -24,6 +29,8 @@ runSync = flip runReaderT
 
 sync :: FilePath -> File -> Sync ()
 sync filePath file = do
+    info "SYNC" $ filePath <> " <--> " <> show file
+
     isFileDirectory <- liftIO $ (,)
         <$> doesFileExist filePath
         <*> doesDirectoryExist filePath
@@ -31,15 +38,20 @@ sync filePath file = do
     case isFileDirectory of
         (True, _) -> syncFile filePath file
         (_, True) -> syncDirectory filePath file
-        _ -> lift $ throwApiError $ "File not found: " <> filePath
+        _ -> throw $ "File not found: " <> filePath
 
 syncFile :: FilePath -> File -> Sync ()
 syncFile filePath file = do
     modified <- liftIO $ getModificationTime filePath
     let rmodified = fileModified $ fileData file
+
+    info "SYNC" $ filePath <> " <--> " <> show file
+    debug $ "Local modified :" <> show modified
+    debug $ "Remote modified:" <> show rmodified
+
     when (different modified rmodified) $
         if modified > rmodified
-            then update file filePath
+            then upload filePath file
             else download file filePath
 
   where
@@ -50,53 +62,93 @@ syncFile filePath file = do
     different x = (> 30) . abs . diffUTCTime x
 
 syncDirectory :: FilePath -> File -> Sync ()
-syncDirectory = undefined --filePath file = do
-    -- paths <- liftIO $ getVisibleDirectoryContents filePath
-    -- files <- lift $ listFiles $ ParentEq (fileId file)
+syncDirectory filePath file = do
+    files <- lift $ listFiles $ ParentEq (fileId file)
+    paths <- liftIO $ getVisibleDirectoryContents filePath
+
+    debug "Local contents:"
+    mapM_ (debug . ("  " <>)) paths
+
+    debug "Remote contents:"
+    mapM_ (debug . ("  " <>) . show) files
 
     -- probably inefficient but hopefuly these are small enough lists
-    -- let both = filter ((`elem` paths) . T.unpack . fileTitle) files
-    --     local = filter ((`notElem` map fileTitle both) . T.pack) paths
-    --     remote = filter (`notElem` both) files
+    let (both, remote) = partition ((`elem` paths) . localPath) files
+        local = filter (`notElem` map localPath both) paths
 
-update :: File -> FilePath -> Sync ()
-update file filePath = do
+    forIncludedL_ local $ \fp -> create (filePath </> fp) (fileId file)
+    forIncludedR_ remote $ \f -> download f $ filePath </> localPath f
+    forIncludedR_ both $ \f -> sync (filePath </> localPath f) file
+
+create :: FilePath -> FileId -> Sync ()
+create filePath parent = do
+    let title = T.pack $ takeFileName filePath
+
+    isDirectory <- liftIO $ doesDirectoryExist filePath
+
+    if isDirectory
+        then do
+            fps <- liftIO $ getVisibleDirectoryContents filePath
+            folder <- lift $ insertFile =<< newFolder parent title
+
+            info "CREATE DIRECTORY" $ show folder
+            forM_ fps $ \fp -> create (filePath </> fp) $ fileId folder
+        else do
+            return ()
+            f <- lift $ newFile parent filePath
+            upload filePath f
+
+upload :: FilePath -> File -> Sync ()
+upload filePath file = do
+    t <- asks oThrottle
+    p <- asks oProgress
+
+    info "UPLOAD" $ filePath <> " --> " <> show file
     size <- liftIO $ withFile filePath ReadMode hFileSize
     void $ lift $ uploadFile file (fromIntegral size) $ \c ->
         sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
-
-upload :: FilePath -> FileId -> Sync ()
-upload filePath parent = do
-    isDirectory <- liftIO $ doesDirectoryExist filePath
-    if isDirectory
-        then uploadDirectory filePath parent
-        else do
-            size <- liftIO $ withFile filePath ReadMode hFileSize
-            lift $ do
-                fdata <- newFile parent filePath
-                void $ uploadNewFile fdata (fromIntegral size) $ \c ->
-                    sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
-
-uploadDirectory :: FilePath -> FileId -> Sync ()
-uploadDirectory filePath parent = do
-    paths <- liftIO $ getVisibleDirectoryContents filePath
-    folder <- lift $ insertFile =<<
-        newFolder parent (T.pack $ takeFileName filePath)
-    forM_ paths $ \path -> upload (filePath </> path) $ fileId folder
+        $= withProgress p (Just $ fromIntegral size)
+        $= throttled t
 
 download :: File -> FilePath -> Sync ()
 download file filePath =
     case fileDownloadUrl $ fileData file of
-        Nothing -> downloadDirectory file filePath
-        Just url -> lift $
-            getSource (T.unpack url) [] $ ($$+- sinkFile filePath)
+        Nothing -> do
+            debug $ "No download URL: " <> show file
+            downloadDirectory file filePath
+        Just url -> do
+            t <- asks oThrottle
+            p <- asks oProgress
+
+            info "DOWNLOAD" $ show file <> " --> " <> filePath
+            lift $ getSource (T.unpack url) [] $ \source ->
+                source $$+-
+                    throttled t
+                    =$ withProgress p (fileSize $ fileData file)
+                    =$ sinkFile filePath
 
 downloadDirectory :: File -> FilePath -> Sync ()
 downloadDirectory file filePath = do
     files <- lift $ listFiles $ ParentEq (fileId file)
+
+    debug $ "Files to download:"
+    mapM_ (debug . ("  " <>) . show) files
+
     liftIO $ createDirectoryIfMissing True filePath
     forM_ files $ \f ->
         download f $ filePath </> (T.unpack $ fileTitle $ fileData f)
+
+forIncludedL_ :: [FilePath] -> (FilePath -> Sync a) -> Sync ()
+forIncludedL_ fs k = mapM_ k =<< filterM isIncluded fs
+
+forIncludedR_ :: [File] -> (File -> Sync a) -> Sync ()
+forIncludedR_ fs k = mapM_ k =<<
+    filterM (isIncluded . T.unpack . fileTitle . fileData) fs
+
+isIncluded :: String -> Sync Bool
+isIncluded name = do
+    excludes <- asks oExcludes
+    return $ not $ name `elem` excludes
 
 getVisibleDirectoryContents :: FilePath -> IO [FilePath]
 getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
@@ -106,52 +158,25 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
     visible ('.':_) = False
     visible _ = True
 
-info :: String -> Sync ()
-info = liftIO . putStrLn
-
 debug :: String -> Sync ()
 debug msg = do
-    d <- fmap oDebug ask
+    d <- asks oDebug
+    when d $ liftIO $ hPutStrLn stderr $ "[DEBUG] " <> msg
 
-    when d $ liftIO $ hPutStrLn stderr msg
+info :: String -> String -> Sync ()
+info act msg = liftIO $ putStrLn $ "--> " <> pad 15 act <> msg
 
---
--- TODO: Progress/Throttling
---
--- -- | Convert the given sink to one with throttling and/or progress reporting
--- --   depending on the current @ApiOptions@
--- downloadSink :: MonadIO m
---              => Maybe Int
---              -> Sink ByteString m r
---              -> Api (Sink ByteString m r)
--- downloadSink msize sink = do
---     options <- fmap apiOptions ask
+throw :: String -> Sync ()
+throw = lift . throwApiError
 
---     return $ case (msize, options) of
---         (Just s, ApiOptions _ (Just l) (Just p) _) ->
---             throttled l =$ progress p s =$ sink
---         (Just s, ApiOptions _ _ (Just p) _) -> progress p s =$ sink
---         (_, ApiOptions _ (Just l) _ _) -> throttled l =$ sink
---         _ -> sink
+throttled :: MonadIO m => Int -> Conduit ByteString m ByteString
+throttled 0 = pass
+throttled n = throttle B.length n
 
--- -- | Convert the given source to one with throttling and/or progress reporting
--- --   depending on the current @ApiOptions@
--- uploadSource :: MonadIO m
---              => Maybe Int
---              -> Source m ByteString
---              -> Api (Source m ByteString)
--- uploadSource msize source = do
---     options <- fmap apiOptions ask
+withProgress :: MonadIO m => Int -> Maybe Int -> Conduit ByteString m ByteString
+withProgress 0 _ = pass
+withProgress n (Just size) = reportProgress B.length size n
+withProgress _ _ = pass
 
---     return $ case (msize, options) of
---         (Just s, ApiOptions _ (Just l) (Just p) _) ->
---             source $= throttled l $= progress p s
---         (Just s, ApiOptions _ _ (Just p) _) -> source $= progress p s
---         (_, ApiOptions _ (Just l) _ _) -> source $= throttled l
---         _ -> source
-
--- throttled :: MonadIO m => Int -> Conduit ByteString m ByteString
--- throttled = throttle B.length
-
--- progress :: MonadIO m => Int -> Int -> Conduit ByteString m ByteString
--- progress each size = reportProgress B.length size each
+pass :: Monad m => Conduit o m o
+pass = maybe (return ()) yield =<< await

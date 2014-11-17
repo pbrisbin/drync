@@ -48,7 +48,7 @@ parseOptions cwd = Options
         <> value cwd
         <> help "Sync from the given directory"
         )
-    <*> some (strOption
+    <*> many (strOption
         (  short 'x'
         <> long "exclude"
         <> metavar "PATTERN"

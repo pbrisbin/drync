@@ -12,12 +12,6 @@ import Drync
 import Drync.Client
 import Drync.Options
 
--- TODO
---
--- * support --throttle again
--- * support --progress again
--- * support --exclude
---
 main :: IO ()
 main = do
     options <- getOptions
