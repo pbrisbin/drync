@@ -90,7 +90,7 @@ syncDirectory filePath file = do
 
     forIncludedL_ local $ \fp -> create (filePath </> fp) (fileId file)
     forIncludedR_ remote $ \f -> download f $ filePath </> localPath f
-    forIncludedR_ both $ \f -> sync (filePath </> localPath f) file
+    forIncludedR_ both $ \f -> sync (filePath </> localPath f) f
 
 create :: FilePath -> FileId -> Sync ()
 create filePath parent = do
