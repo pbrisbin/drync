@@ -180,7 +180,7 @@ throw = lift . throwApiError
 
 throttled :: MonadIO m => Int -> Conduit ByteString m ByteString
 throttled 0 = pass
-throttled n = throttle B.length n
+throttled n = throttle B.length (n * 1000)
 
 withProgress :: MonadIO m => Int -> Maybe Int -> Conduit ByteString m ByteString
 withProgress 0 _ = pass
