@@ -5,9 +5,6 @@
 Sync a local directory with Google Drive. Very beta. Beware.
 
 ```
-Preprocessing library drync-0.0.0...
-In-place registering drync-0.0.0...
-Preprocessing executable 'drync' for drync-0.0.0...
 Usage: drync [-p|--profile NAME] [-r|--refresh-oauth] [-f|--sync-from DIR]
              [-x|--exclude PATTERN] [-T|--throttle N] [-P|--progress N]
              [-d|--debug]
