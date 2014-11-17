@@ -6,7 +6,7 @@ import Control.Monad.Reader (ReaderT(..), asks, lift)
 import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString (ByteString)
 import Data.Conduit
-import Data.Conduit.Progress (reportProgress, pad)
+import Data.Conduit.Progress (reportProgress)
 import Data.Conduit.Throttle (throttle)
 import Data.Monoid ((<>))
 import Data.List (partition)
@@ -42,7 +42,7 @@ runSync = flip runReaderT
 
 sync :: FilePath -> File -> Sync ()
 sync filePath file = do
-    info "SYNC" $ filePath <> " <--> " <> show file
+    info $ "SYNC " <> filePath <> " <--> " <> show file
 
     isFileDirectory <- liftIO $ (,)
         <$> doesFileExist filePath
@@ -103,7 +103,7 @@ createDirectory :: FilePath -> FileId -> Sync ()
 createDirectory filePath parent = do
     let name = takeFileName filePath
 
-    info "CREATE FOLDER" name
+    info $ "CREATE FOLDER " <> name
     paths <- liftIO $ getVisibleDirectoryContents filePath
     folder <- lift $ createFolder parent $ T.pack name
     forIncludedL_ paths $ \fp -> create (filePath </> fp) $ fileId folder
@@ -113,7 +113,7 @@ upload filePath file = do
     t <- asks oThrottle
     p <- asks oProgress
 
-    info "UPLOAD" $ filePath <> " --> " <> show file
+    info $ "UPLOAD " <> filePath <> " --> " <> show file
     size <- liftIO $ withFile filePath ReadMode hFileSize
     void $ lift $ uploadFile file (fromIntegral size) $ \c ->
         sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
@@ -131,7 +131,7 @@ download file filePath =
             t <- asks oThrottle
             p <- asks oProgress
 
-            info "DOWNLOAD" $ show file <> " --> " <> filePath
+            info $ "DOWNLOAD " <> show file <> " --> " <> filePath
             lift $ getSource (T.unpack url) [] $ \source ->
                 source $$+-
                     throttled t
@@ -168,8 +168,8 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
     visible ('.':_) = False
     visible _ = True
 
-info :: String -> String -> Sync ()
-info act msg = liftIO $ putStrLn $ "--> " <> pad 15 act <> msg
+info :: String -> Sync ()
+info = liftIO . putStrLn
 
 debug :: String -> Sync ()
 debug msg = do
