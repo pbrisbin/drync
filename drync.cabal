@@ -43,6 +43,7 @@ Library
                       , text                               < 2.0
                       , time
                       , transformers
+                      , unix
   Default-Extensions:   OverloadedStrings
                         RecordWildCards
 

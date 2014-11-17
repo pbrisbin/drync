@@ -10,7 +10,8 @@ import Data.Conduit.Progress (reportProgress)
 import Data.Conduit.Throttle (throttle)
 import Data.Monoid ((<>))
 import Data.List (partition)
-import Data.Time (UTCTime, diffUTCTime)
+import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
+import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Network.Google.Api
 import Network.Google.Drive.File
 import Network.Google.Drive.Upload
@@ -29,6 +30,7 @@ import System.IO
     , stderr
     , withFile
     )
+import System.Posix (EpochTime, setFileTimes)
 
 import qualified Data.Text as T
 import qualified Data.ByteString as B
@@ -137,6 +139,9 @@ download file filePath =
                     =$ withProgress p (fileSize $ fileData file)
                     =$ sinkFile filePath
 
+            -- Equalize timestamps
+            liftIO $ setModificationTime filePath $ fileModified $ fileData file
+
 downloadDirectory :: File -> FilePath -> Sync ()
 downloadDirectory file filePath = do
     files <- lift $ listFiles $ ParentEq (fileId file)
@@ -189,3 +194,16 @@ withProgress _ _ = pass
 
 pass :: Monad m => Conduit o m o
 pass = await >>= maybe (return ()) (\v -> yield v >> pass)
+
+-- sets mtime to time, sets atime to now
+setModificationTime :: FilePath -> UTCTime -> IO ()
+setModificationTime fp t = do
+    now <- getCurrentTime
+
+    setFileTimes fp (toEpoch now) (toEpoch t)
+  where
+    toEpoch :: UTCTime -> EpochTime
+    toEpoch = fromIntegral . toSecs
+
+    toSecs :: UTCTime -> Int
+    toSecs = round . utcTimeToPOSIXSeconds
