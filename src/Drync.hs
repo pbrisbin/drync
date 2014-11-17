@@ -1,21 +1,35 @@
 module Drync where
 
-import Control.Applicative
-import Control.Monad.Reader hiding (local)
+import Control.Applicative ((<$>), (<*>))
+import Control.Monad (filterM, when, void)
+import Control.Monad.Reader (ReaderT(..), asks, lift)
+import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString (ByteString)
 import Data.Conduit
-import Data.Conduit.Binary hiding (mapM_)
-import Data.Conduit.Progress
-import Data.Conduit.Throttle
-import Data.Monoid
-import Data.List
-import Data.Time
+import Data.Conduit.Binary (sourceFileRange, sinkFile)
+import Data.Conduit.Progress (reportProgress, pad)
+import Data.Conduit.Throttle (throttle)
+import Data.Monoid ((<>))
+import Data.List (partition)
+import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Api
 import Network.Google.Drive.File
 import Network.Google.Drive.Upload
 import System.Directory
-import System.FilePath
+    ( createDirectoryIfMissing
+    , doesDirectoryExist
+    , doesFileExist
+    , getDirectoryContents
+    , getModificationTime
+    )
+import System.FilePath ((</>), takeFileName)
 import System.IO
+    ( IOMode(..)
+    , hFileSize
+    , hPutStrLn
+    , stderr
+    , withFile
+    )
 
 import qualified Data.Text as T
 import qualified Data.ByteString as B
@@ -45,7 +59,6 @@ syncFile filePath file = do
     modified <- liftIO $ getModificationTime filePath
     let rmodified = fileModified $ fileData file
 
-    info "SYNC" $ filePath <> " <--> " <> show file
     debug $ "Local modified :" <> show modified
     debug $ "Remote modified:" <> show rmodified
 
@@ -82,21 +95,19 @@ syncDirectory filePath file = do
 
 create :: FilePath -> FileId -> Sync ()
 create filePath parent = do
-    let title = T.pack $ takeFileName filePath
-
     isDirectory <- liftIO $ doesDirectoryExist filePath
-
     if isDirectory
-        then do
-            fps <- liftIO $ getVisibleDirectoryContents filePath
-            folder <- lift $ insertFile =<< newFolder parent title
+        then createDirectory filePath parent
+        else upload filePath =<< lift (newFile parent filePath)
 
-            info "CREATE DIRECTORY" $ show folder
-            forM_ fps $ \fp -> create (filePath </> fp) $ fileId folder
-        else do
-            return ()
-            f <- lift $ newFile parent filePath
-            upload filePath f
+createDirectory :: FilePath -> FileId -> Sync ()
+createDirectory filePath parent = do
+    let name = takeFileName filePath
+
+    info "CREATE FOLDER" name
+    paths <- liftIO $ getVisibleDirectoryContents filePath
+    folder <- lift $ createFolder parent $ T.pack name
+    forIncludedL_ paths $ \fp -> create (filePath </> fp) $ fileId folder
 
 upload :: FilePath -> File -> Sync ()
 upload filePath file = do
@@ -115,6 +126,7 @@ download file filePath =
     case fileDownloadUrl $ fileData file of
         Nothing -> do
             debug $ "No download URL: " <> show file
+            debug   "Assuming directory..."
             downloadDirectory file filePath
         Just url -> do
             t <- asks oThrottle
@@ -131,19 +143,18 @@ downloadDirectory :: File -> FilePath -> Sync ()
 downloadDirectory file filePath = do
     files <- lift $ listFiles $ ParentEq (fileId file)
 
-    debug $ "Files to download:"
+    debug $ "Remote contents:"
     mapM_ (debug . ("  " <>) . show) files
 
     liftIO $ createDirectoryIfMissing True filePath
-    forM_ files $ \f ->
+    forIncludedR_ files $ \f ->
         download f $ filePath </> (T.unpack $ fileTitle $ fileData f)
 
 forIncludedL_ :: [FilePath] -> (FilePath -> Sync a) -> Sync ()
 forIncludedL_ fs k = mapM_ k =<< filterM isIncluded fs
 
 forIncludedR_ :: [File] -> (File -> Sync a) -> Sync ()
-forIncludedR_ fs k = mapM_ k =<<
-    filterM (isIncluded . T.unpack . fileTitle . fileData) fs
+forIncludedR_ fs k = mapM_ k =<< filterM (isIncluded . localPath) fs
 
 isIncluded :: String -> Sync Bool
 isIncluded name = do
@@ -158,13 +169,13 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
     visible ('.':_) = False
     visible _ = True
 
+info :: String -> String -> Sync ()
+info act msg = liftIO $ putStrLn $ "--> " <> pad 15 act <> msg
+
 debug :: String -> Sync ()
 debug msg = do
     d <- asks oDebug
     when d $ liftIO $ hPutStrLn stderr $ "[DEBUG] " <> msg
-
-info :: String -> String -> Sync ()
-info act msg = liftIO $ putStrLn $ "--> " <> pad 15 act <> msg
 
 throw :: String -> Sync ()
 throw = lift . throwApiError
