@@ -6,7 +6,6 @@ import Control.Monad.Reader (ReaderT(..), asks, lift)
 import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString (ByteString)
 import Data.Conduit
-import Data.Conduit.Binary (sourceFileRange, sinkFile)
 import Data.Conduit.Progress (reportProgress, pad)
 import Data.Conduit.Throttle (throttle)
 import Data.Monoid ((<>))
