@@ -116,7 +116,7 @@ upload filePath file = do
     info $ "UPLOAD " <> filePath <> " --> " <> show file
     size <- liftIO $ withFile filePath ReadMode hFileSize
     void $ lift $ uploadFile file (fromIntegral size) $ \c ->
-        sourceFileRange filePath (Just $ fromIntegral $ c + 1) Nothing
+        uploadSourceFile filePath c
         $= withProgress p (Just $ fromIntegral size)
         $= throttled t
 
