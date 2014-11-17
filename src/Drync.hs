@@ -75,7 +75,7 @@ syncFile filePath file = do
 
 syncDirectory :: FilePath -> File -> Sync ()
 syncDirectory filePath file = do
-    files <- lift $ listFiles $ ParentEq (fileId file)
+    files <- lift $ listFiles $ ParentEq (fileId file) `And` Untrashed
     paths <- liftIO $ getVisibleDirectoryContents filePath
 
     debug "Local contents:"
