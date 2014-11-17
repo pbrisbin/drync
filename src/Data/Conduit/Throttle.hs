@@ -8,11 +8,9 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Conduit (Conduit, await, yield)
 import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
 
-type Units = Int
-
 throttle :: MonadIO m
-         => (e -> Units) -- ^ How many units per element?
-         -> Units        -- ^ Limit to this many per second
+         => (e -> Int) -- ^ How many units per element?
+         -> Int        -- ^ Limit to this many per second
          -> Conduit e m e
 throttle len limit = loop 0 =<< liftIO getCurrentTime
 
@@ -31,7 +29,7 @@ throttle len limit = loop 0 =<< liftIO getCurrentTime
 
                 loop total start
 
-limitSpeed :: Units -> Units -> UTCTime -> IO ()
+limitSpeed :: Int -> Int -> UTCTime -> IO ()
 limitSpeed limit total start = do
     now <- getCurrentTime
 

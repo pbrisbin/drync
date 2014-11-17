@@ -24,26 +24,24 @@ import Data.Monoid ((<>))
 import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
 import System.IO (hFlush, stdout)
 
-type Units = Int
-
 data Progress = Progress
     { progressStart :: !UTCTime
     , progressNow :: !UTCTime
-    , progressCurrent :: !Units
-    , progressTotal :: !Units
+    , progressCurrent :: !Int
+    , progressTotal :: !Int
     }
 
 type Reporter = Progress -> IO ()
 
 -- | See @'reportProgressWith'@ for a description of arguments
-reportProgress :: MonadIO m => (i -> Units) -> Units -> Units -> Conduit i m i
+reportProgress :: MonadIO m => (i -> Int) -> Int -> Int -> Conduit i m i
 reportProgress = reportProgressWith defaultReporter
 
 reportProgressWith :: MonadIO m
                    => Reporter
-                   -> (e -> Units) -- ^ How many units per element
-                   -> Units        -- ^ Total units we're working toward
-                   -> Units        -- ^ Report progess every this many units
+                   -> (e -> Int) -- ^ How many units per element
+                   -> Int        -- ^ Total units we're working toward
+                   -> Int        -- ^ Report progess every this many units
                    -> Conduit e m e
 reportProgressWith reporter len total each = do
     now <- liftIO getCurrentTime
