@@ -21,7 +21,7 @@ getOptions = do
     cwd <- getCurrentDirectory
 
     execParser $ parseOptions cwd `withInfo`
-        "Sync a local directory with one on Google Drive"
+        "Sync a local directory with Google Drive"
 
   where
     withInfo :: Parser a -> String -> ParserInfo a
