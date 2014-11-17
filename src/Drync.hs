@@ -188,4 +188,4 @@ withProgress n (Just size) = reportProgress B.length size n
 withProgress _ _ = pass
 
 pass :: Monad m => Conduit o m o
-pass = maybe (return ()) yield =<< await
+pass = await >>= maybe (return ()) (\v -> yield v >> pass)
