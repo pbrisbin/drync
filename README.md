@@ -27,14 +27,9 @@ Available options:
 - Enable OAuth2 for the project
 - Enable the Drive API for the project
 - Copy `files/Client.hs` to `src/Drync/Client.hs` and add your credentials
-- Clone `google-drive` (not yet on Hackage, will be soon)
 
 ```
-% git clone https://github.com/pbrisbin/google-drive
-% git clone https://github.com/pbrisbin/drync
-% cd drync
 % cabal sandbox init
-% cabal sandbox add-source ../google-drive
 % cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
 % cabal run -- --help
 ```
