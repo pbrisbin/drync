@@ -18,48 +18,19 @@ Library
                       , Drync.Options
                       , Data.Conduit.Progress
                       , Data.Conduit.Throttle
-                      , Network.Google.Api
-                      , Network.Google.Drive.File
-                      , Network.Google.Drive.Upload
   Build-Depends:        base            >= 4            && < 5
-                      , HTTP            >= 4000.2       && < 4000.3
-                      , aeson           >= 0.8          && < 0.9
                       , bytestring
-                      , containers
                       , conduit
-                      , conduit-extra
-                      , data-default
                       , directory
                       , filepath
+                      , google-drive
                       , google-oauth2
-                      , http-client
-                      , http-conduit    >= 2.1          && < 2.2
-                      , http-types
-                      , mime-types
                       , mtl
                       , optparse-applicative
-                      , random
-                      , resourcet
                       , text                               < 2.0
                       , time
                       , transformers
                       , unix
-  Default-Extensions:   OverloadedStrings
-                        RecordWildCards
-
-Test-Suite spec
-  Type:                 exitcode-stdio-1.0
-  Default-Language:     Haskell2010
-  Hs-Source-Dirs:       test
-  Ghc-Options:          -Wall
-  Main-Is:              Spec.hs
-  Build-Depends:        base
-                      , drync
-                      , bytestring
-                      , aeson
-                      , hspec
-  Default-Extensions:   OverloadedStrings
-                        RecordWildCards
 
 Executable drync
   Default-Language:     Haskell2010
@@ -67,14 +38,10 @@ Executable drync
   GHC-Options:          -Wall
   Build-Depends:        base
                       , drync
-                      , bytestring
-                      , directory
                       , filepath
                       , google-oauth2
-                      , text
+                      , google-drive
                       , xdg-basedir
-  Default-Extensions:   OverloadedStrings
-                        RecordWildCards
 
 Source-Repository head
   Type:                 git

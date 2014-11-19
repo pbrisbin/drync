@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Data.Conduit.Progress
     ( reportProgress
     , reportProgressWith
