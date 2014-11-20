@@ -12,7 +12,7 @@ Build-Type:             Simple
 Library
   Default-Language:     Haskell2010
   HS-Source-Dirs:       src
-  GHC-Options:          -Wall
+  GHC-Options:          -Wall -static
   Exposed-Modules:      Drync
                       , Drync.Client
                       , Drync.Options
@@ -35,7 +35,7 @@ Library
 Executable drync
   Default-Language:     Haskell2010
   Main-Is:              main.hs
-  GHC-Options:          -Wall
+  GHC-Options:          -Wall -static
   Build-Depends:        base
                       , drync
                       , filepath
