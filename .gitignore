@@ -8,5 +8,6 @@ cabal-dev
 .hsenv
 .cabal-sandbox/
 cabal.sandbox.config
+!pkg
 
 src/Drync/Client.hs
