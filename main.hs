@@ -5,9 +5,7 @@ import Network.Google.Api
 import Network.Google.Drive.File
 import Network.Google.OAuth2
 import System.Environment.XDG.BaseDir
-import System.Exit
 import System.FilePath
-import System.IO
 
 import Drync
 import Drync.Client
@@ -22,15 +20,10 @@ main = do
         else fmap Just $ tokenFile $ oProfile options
 
     token <- getAccessToken client scopes mfile
-    result <- runApi token $ do
+
+    runApi_ token $ do
         syncTo <- getFile "root"
         runSync options $ sync (oSyncFrom options) syncTo
-
-    case result of
-        Right _ -> return ()
-        Left ex -> do
-            hPutStrLn stderr $ show ex
-            exitFailure
 
 appName :: String
 appName = "drync"

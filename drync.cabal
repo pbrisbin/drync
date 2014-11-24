@@ -23,7 +23,7 @@ Library
                       , conduit
                       , directory
                       , filepath
-                      , google-drive
+                      , google-drive    >= 0.2.0
                       , google-oauth2
                       , mtl
                       , optparse-applicative
