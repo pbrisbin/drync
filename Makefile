@@ -1,5 +1,6 @@
 NAME = drync
-VERSION = 0.0.1
+VERSION = 0.0.2
+RELEASE = 1
 
 PREFIX    ?= /usr/local
 MANPREFIX ?= $(PREFIX)/share/man
@@ -11,15 +12,29 @@ package:
 	mkdir -p $(NAME)-$(VERSION)/bin
 	cp Makefile $(NAME)-$(VERSION)/
 	cp dist/build/$(NAME)/$(NAME) $(NAME)-$(VERSION)/bin/
-	tar czvf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
+	tar czvf pkg/$(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)
 	rm -rf $(NAME)-$(VERSION)
 
-publish:
-	scp $(NAME)-$(VERSION).tar.gz \
+dist: build package
+	scp pkg/$(NAME)-$(VERSION).tar.gz \
 	  pbrisbin.com:/srv/http/source/$(NAME)-$(VERSION).tar.gz
-	rm -rf $(NAME)-$(VERSION).tar.gz
 
-release: build package publish
+distclean:
+	rm -f pkg/$(NAME)-$(VERSION).tar.gz
+
+pkgver:
+	sed -i "s/^pkgver=.*/pkgver=$(VERSION)/" pkg/PKGBUILD
+	sed -i "s/^pkgrel=.*/pkgrel=$(RELEASE)/" pkg/PKGBUILD
+
+pkgsums:
+	(cd pkg && updpkgsums)
+	rm -rf pkg/src pkg/pkg
+
+release: build package dist pkgver pkgsums distclean
+
+distcheck:
+	(cd pkg && makepkg -s -c -i)
+	rm -rf pkg/$(NAME)-*
 
 install:
 	install -Dm755 bin/drync $(DESTDIR)/$(PREFIX)/bin/drync
@@ -27,4 +42,4 @@ install:
 uninstall:
 	$(RM) $(DESTDIR)/$(PREFIX)/bin/drync
 
-.PHONY: build package publish release install uninstall
+.PHONY: build package dist distclean pkgver pkgsums release distcheck install uninstall
