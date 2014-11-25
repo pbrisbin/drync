@@ -21,7 +21,25 @@ Available options:
   -d,--debug               Output debugging messages
 ```
 
+## Installation
+
+For now, `drync` is packaged as a binary distribution and only for 64 bit Arch.
+
+```
+% curl https://github.com/pbrisbin/drync/blob/master/pkg/PKGBUILD > PKGBUILD
+% makepkg -s -c -i
+% drync --help
+```
+
+On non-Arch systems, feel free to grab the [archive][], extract, and do a `make
+install`. If you happen to have shared object libraries in the same locations as
+my system, it might work!
+
+[archive]: http://source.pbrisbin.com
+
 ## Development Installation and Usage
+
+This should work on any platform with a Haskell installation.
 
 - Use the Google Developers Console to create a project
 - Enable OAuth2 for the project
@@ -33,3 +51,5 @@ Available options:
 % cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
 % cabal run -- --help
 ```
+
+Optionally, `cp` (or `ln`) `dist/build/drync/drync` into `$PATH`.
