@@ -5,13 +5,12 @@
 Sync a local directory with Google Drive. Very beta. Beware.
 
 ```
-Usage: drync [-f|--sync-from DIR] [-x|--exclude PATTERN] [-p|--profile NAME]
+Usage: drync [DIRECTORY] [-x|--exclude PATTERN] [-p|--profile NAME]
              [-r|--refresh-oauth] [-t|--throttle N] [-s|--silent] [-d|--debug]
   Sync a local directory with Google Drive
 
 Available options:
   -h,--help                Show this help text
-  -f,--sync-from DIR       Sync from the given directory
   -x,--exclude PATTERN     Exclude files and folders matching PATTERN
   -p,--profile NAME        Use the named profile
   -r,--refresh-oauth       Ignore cached OAuth2 credentials

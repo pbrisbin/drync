@@ -34,13 +34,7 @@ getOptions = do
 
 parseOptions :: FilePath -> Parser Options
 parseOptions cwd = Options
-    <$> strOption
-        (  short 'f'
-        <> long "sync-from"
-        <> metavar "DIR"
-        <> value cwd
-        <> help "Sync from the given directory"
-        )
+    <$> argument str (metavar "DIRECTORY" <> value cwd)
     <*> many (strOption
         (  short 'x'
         <> long "exclude"

@@ -2,16 +2,17 @@
 
 ## SYNOPSIS
 
-`drync` [OPTION ...]
+`drync` [OPTION ...] [DIRECTORY]
+
+*DIRECTORY* defaults to current working directory.
+
+https://github.com/pbrisbin/drync
 
 ## DESCRIPTION
 
 Sync a local directory with Google Drive
 
 ## OPTIONS
-
-`-f`, `--sync-from` *DIR*
-  Sync from the given directory. Defaults to the current working directory.
 
 `-x`, `--exclude` *PATTERN*
   Exclude files and folders matching the given pattern. This option may be
