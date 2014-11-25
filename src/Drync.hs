@@ -90,9 +90,9 @@ syncDirectory filePath file = do
     let (both, remote) = partition ((`elem` paths) . localPath) files
         local = filter (`notElem` map localPath both) paths
 
-    forIncludedL_ local $ \fp -> create (filePath </> fp) (fileId file)
-    forIncludedR_ remote $ \f -> download f $ filePath </> localPath f
-    forIncludedR_ both $ \f -> sync (filePath </> localPath f) f
+    forIncluded id local $ \fp -> create (filePath </> fp) (fileId file)
+    forIncluded localPath remote $ \f -> download f $ filePath </> localPath f
+    forIncluded localPath both $ \f -> sync (filePath </> localPath f) f
 
 create :: FilePath -> FileId -> Sync ()
 create filePath parent = do
@@ -108,7 +108,7 @@ createDirectory filePath parent = do
     info $ "CREATE FOLDER " <> name
     paths <- liftIO $ getVisibleDirectoryContents filePath
     folder <- lift $ createFolder parent $ T.pack name
-    forIncludedL_ paths $ \fp -> create (filePath </> fp) $ fileId folder
+    forIncluded id paths $ \fp -> create (filePath </> fp) $ fileId folder
 
 upload :: FilePath -> File -> Sync ()
 upload filePath file = do
@@ -150,14 +150,11 @@ downloadDirectory file filePath = do
     mapM_ (debug . ("  " <>) . show) files
 
     liftIO $ createDirectoryIfMissing True filePath
-    forIncludedR_ files $ \f ->
+    forIncluded localPath files $ \f ->
         download f $ filePath </> (T.unpack $ fileTitle $ fileData f)
 
-forIncludedL_ :: [FilePath] -> (FilePath -> Sync a) -> Sync ()
-forIncludedL_ fs k = mapM_ k =<< filterM isIncluded fs
-
-forIncludedR_ :: [File] -> (File -> Sync a) -> Sync ()
-forIncludedR_ fs k = mapM_ k =<< filterM (isIncluded . localPath) fs
+forIncluded :: (a -> String) -> [a] -> (a -> Sync b) -> Sync ()
+forIncluded f xs k = mapM_ k =<< filterM (isIncluded . f) xs
 
 isIncluded :: String -> Sync Bool
 isIncluded name = do
