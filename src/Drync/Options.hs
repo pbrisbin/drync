@@ -1,5 +1,7 @@
+{-# LANGUAGE RecordWildCards #-}
 module Drync.Options
     ( Options(..)
+    , oProgress
     , getOptions
     ) where
 
@@ -7,14 +9,17 @@ import Options.Applicative
 import System.Directory (getCurrentDirectory)
 
 data Options = Options
-    { oProfile :: String
-    , oRefresh :: Bool
-    , oSyncFrom :: FilePath
+    { oSyncFrom :: FilePath
     , oExcludes :: [String]
+    , oProfile :: String
+    , oRefresh :: Bool
     , oThrottle :: Int
-    , oProgress :: Int
+    , oSilent :: Bool
     , oDebug :: Bool
     }
+
+oProgress :: Options -> Int
+oProgress Options{..} = if oSilent then 0 else 100
 
 getOptions :: IO Options
 getOptions = do
@@ -30,18 +35,6 @@ getOptions = do
 parseOptions :: FilePath -> Parser Options
 parseOptions cwd = Options
     <$> strOption
-        (  short 'p'
-        <> long "profile"
-        <> metavar "NAME"
-        <> value "default"
-        <> help "Use the named profile"
-        )
-    <*> switch
-        (  short 'r'
-        <> long "refresh-oauth"
-        <> help "Ignore cached OAuth2 credentials"
-        )
-    <*> strOption
         (  short 'f'
         <> long "sync-from"
         <> metavar "DIR"
@@ -54,19 +47,29 @@ parseOptions cwd = Options
         <> metavar "PATTERN"
         <> help "Exclude files and folders matching PATTERN"
         ))
+    <*> strOption
+        (  short 'p'
+        <> long "profile"
+        <> metavar "NAME"
+        <> value "default"
+        <> help "Use the named profile"
+        )
+    <*> switch
+        (  short 'r'
+        <> long "refresh-oauth"
+        <> help "Ignore cached OAuth2 credentials"
+        )
     <*> option auto
-        (  short 'T'
+        (  short 't'
         <> long "throttle"
         <> metavar "N"
         <> value 0
         <> help "Throttle HTTP to N KB/s"
         )
-    <*> option auto
-        (  short 'P'
-        <> long "progress"
-        <> metavar "N"
-        <> value 100
-        <> help "Output transfer progress every N bytes"
+    <*> switch
+        (  short 's'
+        <> long "silent"
+        <> help "Output nothing beyond errors"
         )
     <*> switch
         (  short 'd'

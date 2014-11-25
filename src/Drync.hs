@@ -1,7 +1,7 @@
 module Drync where
 
 import Control.Applicative ((<$>), (<*>))
-import Control.Monad (filterM, when, void)
+import Control.Monad (filterM, when, unless, void)
 import Control.Monad.Reader (ReaderT(..), asks, lift)
 import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString (ByteString)
@@ -170,7 +170,9 @@ getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
     visible _ = True
 
 info :: String -> Sync ()
-info = liftIO . putStrLn
+info msg = do
+    s <- asks oSilent
+    unless s $ liftIO $ putStrLn msg
 
 debug :: String -> Sync ()
 debug msg = do
