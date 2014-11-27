@@ -20,10 +20,8 @@ Sync a local directory with Google Drive
 
   The pattern is compared against file basenames and remote file titles as they
   are seen. If a directory or folder matches, it is not synced or traversed. If
-  a local or remote file matches, it is not uploaded or downloaded.
-
-  The comparison is literal string equality, but shell-like globbing is a
-  planned feature.
+  a local or remote file matches, it is not uploaded or downloaded. POSIX-like
+  globs are supported.
 
 `-p`, `--profile` *NAME*
   Use the named profile. Defaults to the string *default*.
