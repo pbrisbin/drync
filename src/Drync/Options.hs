@@ -7,10 +7,11 @@ module Drync.Options
 
 import Options.Applicative
 import System.Directory (getCurrentDirectory)
+import System.FilePath.Glob (Pattern, compile)
 
 data Options = Options
     { oSyncFrom :: FilePath
-    , oExcludes :: [String]
+    , oExcludes :: [Pattern]
     , oProfile :: String
     , oRefresh :: Bool
     , oThrottle :: Int
@@ -35,7 +36,7 @@ getOptions = do
 parseOptions :: FilePath -> Parser Options
 parseOptions cwd = Options
     <$> argument str (metavar "DIRECTORY" <> value cwd)
-    <*> many (strOption
+    <*> many (compile <$> strOption
         (  short 'x'
         <> long "exclude"
         <> metavar "PATTERN"

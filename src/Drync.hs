@@ -23,6 +23,7 @@ import System.Directory
     , getModificationTime
     )
 import System.FilePath ((</>), takeFileName)
+import System.FilePath.Glob (match)
 import System.IO
     ( IOMode(..)
     , hFileSize
@@ -159,7 +160,7 @@ forIncluded f xs k = mapM_ k =<< filterM (isIncluded . f) xs
 isIncluded :: String -> Sync Bool
 isIncluded name = do
     excludes <- asks oExcludes
-    return $ not $ name `elem` excludes
+    return $ not $ any (`match` name) excludes
 
 getVisibleDirectoryContents :: FilePath -> IO [FilePath]
 getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
