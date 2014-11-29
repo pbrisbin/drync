@@ -152,7 +152,7 @@ info msg = do
 debug :: String -> Sync ()
 debug msg = do
     d <- asks oDebug
-    when d $ liftIO $ hPutStrLn stderr $ "[DEBUG] " <> msg
+    when d $ liftIO $ hPutStrLn stderr $ "debug: " <> msg
 
 throw :: String -> Sync ()
 throw = lift . throwApiError
