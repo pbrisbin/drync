@@ -89,6 +89,7 @@ createDirectory filePath parent = do
 
     paths <- liftIO $ getVisibleDirectoryContents filePath
     folder <- lift $ createFolder parent $ T.pack name
+
     forIncluded id paths $ \fp -> create (filePath </> fp) $ fileId folder
 
 upload :: FilePath -> File -> Sync ()
