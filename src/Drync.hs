@@ -1,4 +1,4 @@
-module Drync where
+module Drync (runSync, sync) where
 
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad (filterM, when, unless, void)
