@@ -106,9 +106,10 @@ upload filePath file = do
 download :: File -> FilePath -> Sync ()
 download file filePath =
     case fileDownloadUrl $ fileData file of
-        Nothing -> do
-            when (isFolder file) $
-                downloadDirectory file filePath
+        Nothing ->
+            if isFolder file
+                then downloadDirectory file filePath
+                else debug $ "no download URL: " <> show file
         Just url -> do
             t <- asks oThrottle
             p <- asks oProgress
