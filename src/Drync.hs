@@ -94,15 +94,12 @@ createDirectory filePath parent = do
 
 upload :: FilePath -> File -> Sync ()
 upload filePath file = do
-    t <- asks oThrottle
-    p <- asks oProgress
-
     info $ "UPLOAD " <> filePath <> " --> " <> show file
-    size <- liftIO $ getFileSize filePath
-    void $ lift $ uploadFile file (fromIntegral size) $ \c ->
-        uploadSourceFile filePath c
-        $= throttled t
-        $= withProgress p (Just $ fromIntegral size)
+    s <- liftIO $ getFileSize filePath
+    c <- transferConduit $ Just s
+
+    void $ lift $ uploadFile file s $ \complete ->
+        uploadSourceFile filePath complete $= c
 
 download :: File -> FilePath -> Sync ()
 download file filePath =
@@ -111,18 +108,11 @@ download file filePath =
             if isFolder file
                 then downloadDirectory file filePath
                 else debug $ "no download URL: " <> show file
+
         Just url -> do
-            t <- asks oThrottle
-            p <- asks oProgress
-
             info $ "DOWNLOAD " <> show file <> " --> " <> filePath
-            lift $ getSource (T.unpack url) [] $ \source ->
-                source $$+-
-                    throttled t
-                    =$ withProgress p (fileSize $ fileData file)
-                    =$ sinkFile filePath
-
-            -- Equalize timestamps
+            c <- transferConduit $ fileSize $ fileData file
+            lift $ getSource (T.unpack url) [] ($$+- c =$ sinkFile filePath)
             liftIO $ setModificationTime filePath $ fileModified $ fileData file
 
 downloadDirectory :: File -> FilePath -> Sync ()
@@ -143,7 +133,23 @@ isIncluded name = do
     excludes <- asks oExcludes
     return $ not $ any (`match` name) excludes
 
+transferConduit :: MonadIO m
+                => Maybe Int -- ^ Size
+                -> Sync (Conduit ByteString m ByteString)
+transferConduit msize = do
+    t <- asks oThrottle
+    p <- asks oProgress
 
+    return $ throttled t =$= withProgress p msize
+
+  where
+    pass = await >>= maybe (return ()) (\v -> yield v >> pass)
+
+    throttled 0 = pass
+    throttled n = throttle B.length (n * 1000)
+
+    withProgress n (Just size) | n > 0 = reportProgress B.length size n
+    withProgress _ _ = pass
 
 info :: String -> Sync ()
 info msg = do
@@ -157,16 +163,3 @@ debug msg = do
 
 throw :: String -> Sync ()
 throw = lift . throwApiError
-
-throttled :: MonadIO m => Int -> Conduit ByteString m ByteString
-throttled 0 = pass
-throttled n = throttle B.length (n * 1000)
-
-withProgress :: MonadIO m => Int -> Maybe Int -> Conduit ByteString m ByteString
-withProgress 0 _ = pass
-withProgress n (Just size) = reportProgress B.length size n
-withProgress _ _ = pass
-
-pass :: Monad m => Conduit o m o
-pass = await >>= maybe (return ()) (\v -> yield v >> pass)
-
