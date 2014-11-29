@@ -16,6 +16,7 @@ Library
   Exposed-Modules:      Drync
                       , Drync.Client
                       , Drync.Options
+                      , Drync.System
                       , Data.Conduit.Progress
                       , Data.Conduit.Throttle
   Build-Depends:        base            >= 4            && < 5

@@ -10,8 +10,7 @@ import Data.Conduit.Progress (reportProgress)
 import Data.Conduit.Throttle (throttle)
 import Data.Monoid ((<>))
 import Data.List (partition)
-import Data.Time (UTCTime, diffUTCTime, getCurrentTime)
-import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
+import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Api
 import Network.Google.Drive.File
 import Network.Google.Drive.Upload
@@ -19,24 +18,17 @@ import System.Directory
     ( createDirectoryIfMissing
     , doesDirectoryExist
     , doesFileExist
-    , getDirectoryContents
     , getModificationTime
     )
 import System.FilePath ((</>), takeFileName)
 import System.FilePath.Glob (match)
-import System.IO
-    ( IOMode(..)
-    , hFileSize
-    , hPutStrLn
-    , stderr
-    , withFile
-    )
-import System.Posix (EpochTime, setFileTimes)
+import System.IO (hPutStrLn, stderr)
 
 import qualified Data.Text as T
 import qualified Data.ByteString as B
 
 import Drync.Options
+import Drync.System
 
 type Sync = ReaderT Options Api
 
@@ -117,7 +109,7 @@ upload filePath file = do
     p <- asks oProgress
 
     info $ "UPLOAD " <> filePath <> " --> " <> show file
-    size <- liftIO $ withFile filePath ReadMode hFileSize
+    size <- liftIO $ getFileSize filePath
     void $ lift $ uploadFile file (fromIntegral size) $ \c ->
         uploadSourceFile filePath c
         $= throttled t
@@ -162,13 +154,7 @@ isIncluded name = do
     excludes <- asks oExcludes
     return $ not $ any (`match` name) excludes
 
-getVisibleDirectoryContents :: FilePath -> IO [FilePath]
-getVisibleDirectoryContents path = filter visible <$> getDirectoryContents path
 
-  where
-    visible :: FilePath -> Bool
-    visible ('.':_) = False
-    visible _ = True
 
 info :: String -> Sync ()
 info msg = do
@@ -195,15 +181,3 @@ withProgress _ _ = pass
 pass :: Monad m => Conduit o m o
 pass = await >>= maybe (return ()) (\v -> yield v >> pass)
 
--- sets mtime to time, sets atime to now
-setModificationTime :: FilePath -> UTCTime -> IO ()
-setModificationTime fp t = do
-    now <- getCurrentTime
-
-    setFileTimes fp (toEpoch now) (toEpoch t)
-  where
-    toEpoch :: UTCTime -> EpochTime
-    toEpoch = fromIntegral . toSecs
-
-    toSecs :: UTCTime -> Int
-    toSecs = round . utcTimeToPOSIXSeconds
