@@ -65,7 +65,7 @@ syncFile filePath file = do
 
 syncDirectory :: FilePath -> File -> Sync ()
 syncDirectory filePath file = do
-    files <- lift $ listFiles $ ParentEq (fileId file) `And` Untrashed
+    files <- lift $ listChildren file
     paths <- liftIO $ getVisibleDirectoryContents filePath
 
     -- probably inefficient but hopefuly these are small enough lists
@@ -125,11 +125,14 @@ download file filePath =
 
 downloadDirectory :: File -> FilePath -> Sync ()
 downloadDirectory file filePath = do
-    files <- lift $ listFiles $ ParentEq (fileId file)
+    files <- lift $ listChildren file
 
     liftIO $ createDirectoryIfMissing True filePath
     forIncluded localPath files $ \f ->
         download f $ filePath </> (T.unpack $ fileTitle $ fileData f)
+
+listChildren :: File -> Api [File]
+listChildren parent = listFiles $ ParentEq (fileId parent) `And` Untrashed
 
 forIncluded :: (a -> String) -> [a] -> (a -> Sync b) -> Sync ()
 forIncluded f xs k = mapM_ k =<< filterM (isIncluded . f) xs
