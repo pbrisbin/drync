@@ -72,7 +72,7 @@ syncDirectory filePath file = do
     let (both, remote) = partition ((`elem` paths) . localPath) files
         local = filter (`notElem` map localPath both) paths
 
-    forIncluded id local $ \fp -> create (filePath </> fp) (fileId file)
+    forIncluded id local $ \fp -> create (filePath </> fp) $ fileId file
     forIncluded localPath remote $ \f -> download f $ filePath </> localPath f
     forIncluded localPath both $ \f -> sync (filePath </> localPath f) f
 
