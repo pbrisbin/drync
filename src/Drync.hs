@@ -129,8 +129,7 @@ downloadDirectory file filePath = do
     files <- lift $ listChildren file
 
     liftIO $ createDirectoryIfMissing True filePath
-    forIncluded localPath files $ \f ->
-        download f $ filePath </> (T.unpack $ fileTitle $ fileData f)
+    forIncluded localPath files $ \f -> download f $ filePath </> localPath f
 
 listChildren :: File -> Api [File]
 listChildren parent = listFiles $ ParentEq (fileId parent) `And` Untrashed
