@@ -37,8 +37,6 @@ runSync = flip runReaderT
 
 sync :: FilePath -> File -> Sync ()
 sync filePath file = do
-    info $ "SYNC " <> filePath <> " <--> " <> show file
-
     isFileDirectory <- liftIO $ (,)
         <$> doesFileExist filePath
         <*> doesDirectoryExist filePath
@@ -52,9 +50,6 @@ syncFile :: FilePath -> File -> Sync ()
 syncFile filePath file = do
     modified <- liftIO $ getModificationTime filePath
     let rmodified = fileModified $ fileData file
-
-    debug $ "Local modified :" <> show modified
-    debug $ "Remote modified:" <> show rmodified
 
     when (different modified rmodified) $
         if modified > rmodified
@@ -72,12 +67,6 @@ syncDirectory :: FilePath -> File -> Sync ()
 syncDirectory filePath file = do
     files <- lift $ listFiles $ ParentEq (fileId file) `And` Untrashed
     paths <- liftIO $ getVisibleDirectoryContents filePath
-
-    debug "Local contents:"
-    mapM_ (debug . ("  " <>)) paths
-
-    debug "Remote contents:"
-    mapM_ (debug . ("  " <>) . show) files
 
     -- probably inefficient but hopefuly these are small enough lists
     let (both, remote) = partition ((`elem` paths) . localPath) files
@@ -98,7 +87,6 @@ createDirectory :: FilePath -> FileId -> Sync ()
 createDirectory filePath parent = do
     let name = takeFileName filePath
 
-    info $ "CREATE FOLDER " <> name
     paths <- liftIO $ getVisibleDirectoryContents filePath
     folder <- lift $ createFolder parent $ T.pack name
     forIncluded id paths $ \fp -> create (filePath </> fp) $ fileId folder
@@ -138,9 +126,6 @@ download file filePath =
 downloadDirectory :: File -> FilePath -> Sync ()
 downloadDirectory file filePath = do
     files <- lift $ listFiles $ ParentEq (fileId file)
-
-    debug $ "Remote contents:"
-    mapM_ (debug . ("  " <>) . show) files
 
     liftIO $ createDirectoryIfMissing True filePath
     forIncluded localPath files $ \f ->
