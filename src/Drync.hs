@@ -128,10 +128,11 @@ listChildren parent = listFiles $ ParentEq (fileId parent) `And` Untrashed
 forIncluded :: (a -> String) -> [a] -> (a -> Sync b) -> Sync ()
 forIncluded f xs k = mapM_ k =<< filterM (isIncluded . f) xs
 
-isIncluded :: String -> Sync Bool
-isIncluded name = do
-    excludes <- asks oExcludes
-    return $ not $ any (`match` name) excludes
+  where
+    isIncluded :: String -> Sync Bool
+    isIncluded name = do
+        excludes <- asks oExcludes
+        return $ not $ any (`match` name) excludes
 
 transferConduit :: MonadIO m
                 => Maybe Int -- ^ Size
