@@ -32,7 +32,10 @@ data Progress = Progress
     , progressTotal :: !Int
     }
 
-type Reporter = Progress -> IO ()
+data Reporter = Reporter
+    { reportEach :: Progress -> IO () -- ^ Called on the given interval
+    , reportEnd :: Progress -> IO ()  -- ^ Called when the process finishes
+    }
 
 -- | See @'reportProgressWith'@ for a description of arguments
 reportProgress :: MonadIO m => (i -> Int) -> Int -> Int -> Conduit i m i
@@ -59,13 +62,17 @@ reportProgressWith reporter len total each = do
         mv <- await
 
         case mv of
-            Nothing -> return ()
+            Nothing -> do
+                liftIO $ reportEnd reporter p
+                return ()
+
             Just v -> do
                 now <- liftIO getCurrentTime
 
                 let p' = increment (len v) now p
 
-                when (progressCurrent p' `mod` each == 0) $ liftIO $ reporter p'
+                when (progressCurrent p' `mod` each == 0) $
+                    liftIO $ reportEach reporter p'
 
                 yield v
 
@@ -81,9 +88,15 @@ reportProgressWith reporter len total each = do
 -- > [###      ]   42 per second,   2m3s remaining
 --
 defaultReporter :: Reporter
-defaultReporter p = rewrite $ bar p 50 <>
-    constrain 15 (show $ roundedSpeed p) <> " per second" <>
-    constrain 10 (showTime $ remaining p) <> " remaining"
+defaultReporter = Reporter
+    { reportEach = rewrite . report
+    , reportEnd = putStrLn . report
+    }
+  where
+    report p =
+        bar p 50 <>
+        constrain 15 (show $ roundedSpeed p) <> " per second" <>
+        constrain 10 (showTime $ remaining p) <> " remaining"
 
 rewrite :: String -> IO ()
 rewrite s = do
