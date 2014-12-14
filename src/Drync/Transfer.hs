@@ -33,9 +33,9 @@ download :: Options -> File -> FilePath -> Api ()
 download options file fp = do
     let fd = fileData file
 
-    liftIO $ message options $ show file
+    F.forM_ (fileDownloadUrl fd) $ \url -> do
+        liftIO $ message options $ show file
 
-    F.forM_ (fileDownloadUrl fd) $ \url ->
         getSource (T.unpack url) [] $
             ($$+- transferConduit options (fileSize fd) =$ sinkFile fp)
 
