@@ -42,7 +42,10 @@ This should work on any platform with a Haskell installation.
 - Use the [Google Developers Console][console] to create a project
 - Enable OAuth2 for the project
 - Enable the Drive API for the project
-- Copy `files/Client.hs` to `src/Drync/Client.hs` and add your credentials
+- Copy `.env.sample` to `.env` and add your credentials.
+
+**NOTE**: The format of the `.env` file is very simplistic, keep things exactly
+as they are in the sample -- only with your own Client Id and Secret
 
 [console]: https://console.developers.google.com
 

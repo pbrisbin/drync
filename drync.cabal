@@ -32,6 +32,7 @@ Library
                       , google-oauth2
                       , mtl
                       , optparse-applicative
+                      , template-haskell
                       , text                               < 2.0
                       , time
                       , transformers
