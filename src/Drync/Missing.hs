@@ -19,7 +19,10 @@ missingLocal options parent remote = do
     if not $ isFolder remote
         then download options remote local
         else do
-            liftIO $ createDirectoryIfMissing False local
+            liftIO $ do
+                message options local
+                createDirectoryIfMissing False local
+
             mapM_ (missingLocal options local) =<< listChildren remote
 
 missingRemote :: Options -> File -> FilePath -> Api ()
@@ -30,6 +33,8 @@ missingRemote options parent local = do
     if not $ isDirectory
         then upload options local remote
         else do
+            liftIO $ message options $ show remote
+
             folder <- createAsFolder remote
             mapM_ (missingRemote options folder) =<<
                 liftIO (getVisibleDirectoryContents local)

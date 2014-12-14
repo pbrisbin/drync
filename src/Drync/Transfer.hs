@@ -24,12 +24,16 @@ upload options fp file = do
 
     let msize = Just size
 
+    liftIO $ message options fp
+
     void $ uploadFile file size $ \complete ->
         uploadSourceFile fp complete $= transferConduit options msize
 
 download :: Options -> File -> FilePath -> Api ()
 download options file fp = do
     let fd = fileData file
+
+    liftIO $ message options $ show file
 
     F.forM_ (fileDownloadUrl fd) $ \url ->
         getSource (T.unpack url) [] $

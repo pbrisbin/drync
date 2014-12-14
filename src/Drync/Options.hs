@@ -2,12 +2,17 @@
 module Drync.Options
     ( Options(..)
     , oProgress
+    , message
+    , messageDebug
     , getOptions
     ) where
 
 import Options.Applicative
+
+import Control.Monad (unless, when)
 import System.Directory (getCurrentDirectory)
 import System.FilePath.Glob (Pattern, compile)
+import System.IO (hPutStrLn, stderr)
 
 data Options = Options
     { oSyncFrom :: FilePath
@@ -21,6 +26,12 @@ data Options = Options
 
 oProgress :: Options -> Int
 oProgress Options{..} = if oSilent then 0 else 100
+
+message :: Options -> String -> IO ()
+message options = unless (oSilent options) . putStrLn
+
+messageDebug :: Options -> String -> IO ()
+messageDebug options = when (oDebug options) . hPutStrLn stderr
 
 getOptions :: IO Options
 getOptions = do
