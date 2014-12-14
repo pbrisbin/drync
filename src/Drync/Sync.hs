@@ -16,6 +16,7 @@ import Data.Time (UTCTime, diffUTCTime)
 import Network.Google.Drive
 import System.Directory (getModificationTime)
 import System.FilePath ((</>))
+import System.FilePath.Glob (match)
 
 sync :: Options -> FilePath -> File -> Api ()
 sync options parent file = do
@@ -49,9 +50,13 @@ syncDirectory options fp file = do
 
     let (locals, both, remotes) = categorize paths files
 
-    forM_ locals $ missingRemote options file
-    forM_ remotes $ missingLocal options fp
-    forM_ both $ sync options fp
+    forM_ (filter include locals) $ missingRemote options file . (fp </>)
+    forM_ (filter (include . localPath) remotes) $ missingLocal options fp
+    forM_ (filter (include . localPath) both) $ sync options fp
+
+  where
+    include :: FilePath -> Bool
+    include path = not $ any (`match` path) $ oExcludes options
 
 categorize :: [FilePath] -> [File] -> ([FilePath], [File], [File])
 categorize paths files = (paths', both, files')
