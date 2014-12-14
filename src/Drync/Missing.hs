@@ -36,5 +36,6 @@ missingRemote options parent local = do
             liftIO $ message options $ show remote
 
             folder <- createAsFolder remote
-            mapM_ (missingRemote options folder) =<<
-                liftIO (getVisibleDirectoryContents local)
+            children <- liftIO $ getVisibleDirectoryContents local
+
+            mapM_ (missingRemote options folder) $ map (local </>) children
