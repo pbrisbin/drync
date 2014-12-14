@@ -17,6 +17,8 @@ import System.IO (hPutStrLn, stderr)
 data Options = Options
     { oSyncFrom :: FilePath
     , oExcludes :: [Pattern]
+    , oDeleteLocal :: Bool
+    , oDeleteRemote :: Bool
     , oProfile :: String
     , oRefresh :: Bool
     , oThrottle :: Int
@@ -53,6 +55,14 @@ parseOptions cwd = Options
         <> metavar "PATTERN"
         <> help "Exclude files and folders matching PATTERN"
         ))
+    <*> switch
+        (  long "delete-local"
+        <> help "Delete files which exist only locally"
+        )
+    <*> switch
+        (  long "delete-remote"
+        <> help "Delete files which exist only on your Drive"
+        )
     <*> strOption
         (  short 'p'
         <> long "profile"

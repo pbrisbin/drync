@@ -23,6 +23,12 @@ Sync a local directory with Google Drive
   a local or remote file matches, it is not uploaded or downloaded. POSIX-like
   globs are supported.
 
+`--delete-local`
+  Delete any files or directories which only exist locally.
+
+`--delete-remote`
+  Delete any files or folders which only exist on your Drive.
+
 `-p`, `--profile` *NAME*
   Use the named profile. Defaults to the string *default*.
 

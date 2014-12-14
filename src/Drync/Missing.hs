@@ -8,12 +8,30 @@ import Drync.Transfer
 import Drync.Options
 import Drync.System
 
+import Data.Monoid ((<>))
 import Network.Google.Drive
-import System.Directory (createDirectoryIfMissing, doesDirectoryExist)
+import System.Directory
+    ( createDirectoryIfMissing
+    , doesDirectoryExist
+    , removeDirectoryRecursive
+    , removeFile
+    )
 import System.FilePath ((</>))
 
 missingLocal :: Options -> FilePath -> File -> Api ()
-missingLocal options parent remote = do
+missingLocal options parent remote =
+    if oDeleteRemote options
+        then deleteRemote options remote
+        else createLocal options parent remote
+
+missingRemote :: Options -> File -> FilePath -> Api ()
+missingRemote options parent local =
+    if oDeleteLocal options
+        then deleteLocal options local
+        else createRemote options parent local
+
+createLocal :: Options -> FilePath -> File -> Api ()
+createLocal options parent remote = do
     let local = parent </> localPath remote
 
     if not $ isFolder remote
@@ -23,10 +41,10 @@ missingLocal options parent remote = do
                 message options local
                 createDirectoryIfMissing False local
 
-            mapM_ (missingLocal options local) =<< listChildren remote
+            mapM_ (createLocal options local) =<< listChildren remote
 
-missingRemote :: Options -> File -> FilePath -> Api ()
-missingRemote options parent local = do
+createRemote :: Options -> File -> FilePath -> Api ()
+createRemote options parent local = do
     remote <- newFile (fileId parent) local
     isDirectory <- liftIO $ doesDirectoryExist local
 
@@ -38,4 +56,20 @@ missingRemote options parent local = do
             folder <- createAsFolder remote
             children <- liftIO $ getVisibleDirectoryContents local
 
-            mapM_ (missingRemote options folder) $ map (local </>) children
+            mapM_ (createRemote options folder) $ map (local </>) children
+
+deleteRemote :: Options -> File -> Api ()
+deleteRemote options file = do
+    liftIO $ message options $ "delete " <> show file
+
+    deleteFile file
+
+deleteLocal :: Options -> FilePath -> Api ()
+deleteLocal options local = liftIO $ do
+    message options $ "delete " <> local
+
+    isDirectory <- doesDirectoryExist local
+
+    if isDirectory
+        then removeDirectoryRecursive local
+        else removeFile local
