@@ -39,10 +39,12 @@ my system, it might work!
 
 This should work on any platform with a Haskell installation.
 
-- Use the Google Developers Console to create a project
+- Use the [Google Developers Console][console] to create a project
 - Enable OAuth2 for the project
 - Enable the Drive API for the project
 - Copy `files/Client.hs` to `src/Drync/Client.hs` and add your credentials
+
+[console]: https://console.developers.google.com
 
 ```
 % cabal sandbox init
