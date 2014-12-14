@@ -7,9 +7,9 @@ import Network.Google.OAuth2
 import System.Environment.XDG.BaseDir
 import System.FilePath
 
-import Drync
 import Drync.Client
 import Drync.Options
+import Drync.Sync
 
 main :: IO ()
 main = do
@@ -23,7 +23,7 @@ main = do
 
     runApi_ token $ do
         syncTo <- getFile "root"
-        runSync options $ sync (oSyncFrom options) syncTo
+        syncDirectory options (oSyncFrom options) syncTo
 
 appName :: String
 appName = "drync"

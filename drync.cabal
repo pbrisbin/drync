@@ -13,10 +13,13 @@ Library
   Default-Language:     Haskell2010
   HS-Source-Dirs:       src
   GHC-Options:          -Wall -static
-  Exposed-Modules:      Drync
+  Exposed-Modules:      Drync.Api
                       , Drync.Client
+                      , Drync.Missing
                       , Drync.Options
+                      , Drync.Sync
                       , Drync.System
+                      , Drync.Transfer
                       , Data.Conduit.Progress
                       , Data.Conduit.Throttle
   Build-Depends:        base            >= 4            && < 5
