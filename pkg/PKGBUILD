@@ -1,6 +1,6 @@
 # Author: Patrick Brisbin <pbrisbin@gmail.com>
 pkgname=drync
-pkgver=0.0.6
+pkgver=0.0.7
 pkgrel=1
 pkgdesc="Google Drive sync tool"
 arch=('x86_64')
@@ -14,4 +14,4 @@ package() {
 
   make PREFIX=/usr DESTDIR="$pkgdir" install
 }
-md5sums=('ee9a58197f18d04c7966bb58c75bc34f')
+md5sums=('2b86e2a8d5d6a6609869f6dadda8a867')
