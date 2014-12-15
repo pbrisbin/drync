@@ -18,6 +18,8 @@ import System.Directory
     )
 import System.FilePath ((</>))
 
+import qualified Data.Foldable as F
+
 missingLocal :: Options -> FilePath -> File -> Api ()
 missingLocal options parent remote =
     if oDeleteRemote options
@@ -62,7 +64,11 @@ deleteRemote :: Options -> File -> Api ()
 deleteRemote options file = do
     liftIO $ message options $ "delete " <> show file
 
-    deleteFile file
+    -- We need to ensure we don't delete shared items. Since they'll never
+    -- appear locally, passing --delete-remote would always delete them. One
+    -- naive but so-far-accurate method is to confirm it has a Download URL
+    -- before deleting.
+    F.forM_ (fileDownloadUrl $ fileData file) $ \_ -> deleteFile file
 
 deleteLocal :: Options -> FilePath -> Api ()
 deleteLocal options local = liftIO $ do
