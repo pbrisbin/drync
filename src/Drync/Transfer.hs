@@ -39,6 +39,8 @@ download options file fp = do
         getSource (T.unpack url) [] $
             ($$+- transferConduit options (fileSize fd) =$ sinkFile fp)
 
+        liftIO $ setModificationTime fp $ fileModified fd
+
 transferConduit :: MonadIO m
                 => Options
                 -> Maybe Int
