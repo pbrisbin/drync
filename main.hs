@@ -22,7 +22,7 @@ main = do
     token <- getAccessToken client scopes mfile
 
     runApi_ token $ do
-        syncTo <- getFile "root"
+        Just syncTo <- getFile "root"
         syncDirectory options (oSyncFrom options) syncTo
 
 appName :: String

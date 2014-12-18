@@ -4,7 +4,6 @@ module Drync.Sync
     , syncDirectory
     ) where
 
-import Drync.Api
 import Drync.Missing
 import Drync.Options
 import Drync.System
@@ -45,7 +44,7 @@ syncFile options fp file = do
 
 syncDirectory :: Options -> FilePath -> File -> Api ()
 syncDirectory options fp file = do
-    files <- listChildren file
+    files <- listVisibleContents file
     paths <- liftIO $ getVisibleDirectoryContents fp
 
     let (locals, both, remotes) = categorize paths files

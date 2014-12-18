@@ -26,7 +26,7 @@ upload options fp file = do
 
     liftIO $ message options fp
 
-    void $ uploadFile file size $ \complete ->
+    void $ updateFileWithContent (fileId file) (fileData file) size $ \complete ->
         uploadSourceFile fp complete $= transferConduit options msize
 
 download :: Options -> File -> FilePath -> Api ()

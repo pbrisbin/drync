@@ -13,8 +13,7 @@ Library
   Default-Language:     Haskell2010
   HS-Source-Dirs:       src
   GHC-Options:          -Wall -static
-  Exposed-Modules:      Drync.Api
-                      , Drync.Client
+  Exposed-Modules:      Drync.Client
                       , Drync.Missing
                       , Drync.Options
                       , Drync.Sync
@@ -28,7 +27,7 @@ Library
                       , conduit
                       , directory
                       , filepath
-                      , google-drive    >= 0.2.0
+                      , google-drive    >= 0.3.1
                       , google-oauth2
                       , mtl
                       , optparse-applicative

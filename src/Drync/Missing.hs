@@ -3,22 +3,24 @@ module Drync.Missing
     , missingRemote
     ) where
 
-import Drync.Api
 import Drync.Transfer
 import Drync.Options
 import Drync.System
 
+import Control.Applicative ((<$>), (<*>))
 import Data.Monoid ((<>))
 import Network.Google.Drive
 import System.Directory
     ( createDirectoryIfMissing
     , doesDirectoryExist
+    , getModificationTime
     , removeDirectoryRecursive
     , removeFile
     )
-import System.FilePath ((</>))
+import System.FilePath ((</>), takeFileName)
 
 import qualified Data.Foldable as F
+import qualified Data.Text as T
 
 missingLocal :: Options -> FilePath -> File -> Api ()
 missingLocal options parent remote =
@@ -43,19 +45,23 @@ createLocal options parent remote = do
                 message options local
                 createDirectoryIfMissing False local
 
-            mapM_ (createLocal options local) =<< listChildren remote
+            mapM_ (createLocal options local) =<< listVisibleContents remote
 
 createRemote :: Options -> File -> FilePath -> Api ()
 createRemote options parent local = do
-    remote <- newFile (fileId parent) local
-    isDirectory <- liftIO $ doesDirectoryExist local
+    (modified, isDirectory) <- liftIO $ (,)
+        <$> getModificationTime local
+        <*> doesDirectoryExist local
+
+    let fd = setParent parent $ newFile (T.pack $ takeFileName local) modified
 
     if not $ isDirectory
-        then upload options local remote
+        then upload options local =<< createFile fd
         else do
-            liftIO $ message options $ show remote
+            folder <- createFile $ setMimeType folderMimeType fd
 
-            folder <- createAsFolder remote
+            liftIO $ message options $ show folder
+
             children <- liftIO $ getVisibleDirectoryContents local
 
             mapM_ (createRemote options folder) $ map (local </>) children
