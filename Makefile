@@ -1,5 +1,5 @@
 NAME = drync
-VERSION = 0.0.7
+VERSION = 0.1.0
 RELEASE = 1
 
 PREFIX    ?= /usr/local
