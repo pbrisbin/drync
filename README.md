@@ -27,16 +27,10 @@ Available options:
 For now, `drync` is packaged as a binary distribution and only for 64 bit Arch.
 
 ```
-% curl https://github.com/pbrisbin/drync/blob/master/pkg/PKGBUILD > PKGBUILD
+% curl -O https://github.com/pbrisbin/drync/blob/master/pkg/PKGBUILD
 % makepkg -s -c -i
 % drync --help
 ```
-
-On non-Arch systems, feel free to grab the [archive][], extract, and do a `make
-install`. If you happen to have shared object libraries in the same locations as
-my system, it might work!
-
-[archive]: http://source.pbrisbin.com
 
 ## Development Installation and Usage
 
@@ -54,7 +48,7 @@ as they are in the sample -- only with your own Client Id and Secret
 
 ```
 % cabal sandbox init
-% cabal install --dependencies-only --enable-tests --avoid-reinstalls -j
+% cabal install --dependencies-only
 % cabal run -- --help
 ```
 
