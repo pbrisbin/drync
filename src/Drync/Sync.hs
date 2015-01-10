@@ -32,7 +32,7 @@ syncFile options fp file = do
 
     when (different modified rmodified) $
         if modified > rmodified
-            then upload options fp file
+            then upload options fp $ setModified modified file
             else download options file fp
 
   where
@@ -41,6 +41,9 @@ syncFile options fp file = do
     -- re-sync files back and forth.
     different :: UTCTime -> UTCTime -> Bool
     different x = (> 30) . abs . diffUTCTime x
+
+    setModified :: UTCTime -> File -> File
+    setModified t f@(File _ fd) = f { fileData = fd { fileModified = t } }
 
 syncDirectory :: Options -> FilePath -> File -> Api ()
 syncDirectory options fp file = do
