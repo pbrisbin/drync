@@ -23,8 +23,9 @@ package: build man
 	rm -rf $(NAME)-$(VERSION)
 
 dist: package
-	scp pkg/$(NAME)-$(VERSION).tar.gz \
-	  pbrisbin.com:/srv/http/source/$(NAME)-$(VERSION).tar.gz
+	s3cmd --quiet --acl-public \
+	  put pkg/$(NAME)-$(VERSION).tar.gz \
+	  s3://source.pbrisbin.com/$(NAME)-$(VERSION).tar.gz
 
 distclean:
 	rm -f pkg/$(NAME)-$(VERSION).tar.gz
