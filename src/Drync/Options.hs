@@ -27,7 +27,7 @@ data Options = Options
     }
 
 oProgress :: Options -> Int
-oProgress Options{..} = if oSilent then 0 else 100
+oProgress Options{..} = if oSilent then 0 else 10000
 
 message :: Options -> String -> IO ()
 message options = unless (oSilent options) . putStrLn
