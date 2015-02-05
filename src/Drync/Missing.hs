@@ -67,14 +67,14 @@ createRemote options parent local = do
             mapM_ (createRemote options folder) $ map (local </>) children
 
 deleteRemote :: Options -> File -> Api ()
-deleteRemote options file = do
-    liftIO $ message options $ "delete " <> show file
-
+deleteRemote options file =
     -- We need to ensure we don't delete shared items. Since they'll never
     -- appear locally, passing --delete-remote would always delete them. One
     -- naive but so-far-accurate method is to confirm it has a Download URL
     -- before deleting.
-    F.forM_ (fileDownloadUrl $ fileData file) $ \_ -> deleteFile file
+    F.forM_ (fileDownloadUrl $ fileData file) $ \_ -> do
+        liftIO $ message options $ "delete " <> show file
+        deleteFile file
 
 deleteLocal :: Options -> FilePath -> Api ()
 deleteLocal options local = liftIO $ do
