@@ -39,10 +39,19 @@ This should work on any platform with a Haskell installation.
 - Use the [Google Developers Console][console] to create a project
 - Enable OAuth2 for the project
 - Enable the Drive API for the project
-- Copy `.env.sample` to `.env` and add your credentials.
+- Create `src/Drync/Client.hs` with the following contents:
 
-**NOTE**: The format of the `.env` file is very simplistic, keep things exactly
-as they are in the sample -- only with your own Client Id and Secret
+```hs
+module Drync.Client (client) where
+
+import Network.Google.OAuth2 (OAuth2Client(..))
+
+client :: OAuth2Client
+client = OAuth2Client
+    { clientId = "..."
+    , clientSecret = "..."
+    }
+```
 
 [console]: https://console.developers.google.com
 
