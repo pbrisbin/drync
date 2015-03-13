@@ -1,7 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 module Drync.Options
     ( Options(..)
-    , oProgress
     , message
     , messageDebug
     , getOptions
@@ -25,9 +24,6 @@ data Options = Options
     , oSilent :: Bool
     , oDebug :: Bool
     }
-
-oProgress :: Options -> Int
-oProgress Options{..} = if oSilent then 0 else 10000
 
 message :: Options -> String -> IO ()
 message options = unless (oSilent options) . putStrLn

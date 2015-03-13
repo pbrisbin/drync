@@ -11,8 +11,16 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.ByteString (ByteString)
 import Data.Conduit
 import Data.Conduit.Throttle
-import Data.Conduit.Progress
 import Network.Google.Drive
+import System.Console.AsciiProgress
+    ( ProgressBar
+    , def
+    , complete
+    , newProgressBar
+    , pgTotal
+    , pgOnCompletion
+    , tickN
+    )
 
 import qualified Data.ByteString as B
 import qualified Data.Foldable as F
@@ -26,8 +34,8 @@ upload options fp file = do
 
     liftIO $ message options fp
 
-    void $ updateFileWithContent (fileId file) (fileData file) size $ \complete ->
-        uploadSourceFile fp complete $= transferConduit options msize
+    void $ updateFileWithContent (fileId file) (fileData file) size $ \c ->
+        uploadSourceFile fp c $= transferConduit options msize
 
 download :: Options -> File -> FilePath -> Api ()
 download options file fp = do
@@ -46,7 +54,7 @@ transferConduit :: MonadIO m
                 -> Maybe Int
                 -> Conduit ByteString m ByteString
 transferConduit options msize =
-    throttled (oThrottle options) =$= withProgress (oProgress options) msize
+    throttled (oThrottle options) =$= withProgress (oSilent options) msize
 
   where
     pass = await >>= maybe (return ()) (\v -> yield v >> pass)
@@ -54,5 +62,22 @@ transferConduit options msize =
     throttled 0 = pass
     throttled n = throttle B.length (n * 1000)
 
-    withProgress n (Just size) | n > 0 = reportProgress B.length size n
+    withProgress False (Just size) = reportProgress size
     withProgress _ _ = pass
+
+reportProgress :: MonadIO m => Int -> Conduit ByteString m ByteString
+reportProgress size = do
+    pg <- liftIO $ newProgressBar def
+        { pgTotal = size
+        , pgOnCompletion = putStrLn "Done."
+        }
+
+    updateProgress pg
+
+updateProgress :: MonadIO m => ProgressBar -> Conduit ByteString m ByteString
+updateProgress pg = await >>= maybe
+    (liftIO $ complete pg >> return ())
+    (\chunk -> do
+        liftIO $ tickN pg $ B.length chunk
+        yield chunk
+        updateProgress pg)
