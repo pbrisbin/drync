@@ -4,15 +4,18 @@ module Drync.Options
     , message
     , messageDebug
     , getOptions
+    , readExcludes
     ) where
 
 import Options.Applicative
 
 import Control.Monad (unless, when)
 import Data.List (isPrefixOf)
-import System.Directory (doesFileExist, getCurrentDirectory)
+import System.Directory (doesFileExist)
 import System.FilePath.Glob (Pattern, compile)
 import System.IO (hPutStrLn, stderr)
+
+import Drync.Config
 
 data Options = Options
     { oSyncFrom :: FilePath
@@ -32,21 +35,18 @@ message options = unless (oSilent options) . putStrLn
 messageDebug :: Options -> String -> IO ()
 messageDebug options = when (oDebug options) . hPutStrLn stderr
 
-getOptions :: FilePath -> IO Options
-getOptions fp = do
-    cwd <- getCurrentDirectory
-    excludes <- readExcludes fp
-
-    execParser $ parseOptions cwd excludes `withInfo`
+getOptions :: Config -> [Pattern] -> IO Options
+getOptions conf excludes =
+    execParser $ parseOptions conf excludes `withInfo`
         "Sync a local directory with Google Drive"
 
   where
     withInfo :: Parser a -> String -> ParserInfo a
     withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
-parseOptions :: FilePath -> [Pattern] -> Parser Options
-parseOptions cwd excludes = Options
-    <$> argument str (metavar "DIRECTORY" <> value cwd)
+parseOptions :: Config -> [Pattern] -> Parser Options
+parseOptions Config{..} excludes = Options
+    <$> argument str (metavar "DIRECTORY" <> value cSyncFrom)
     <*> fmap (excludes ++) (many (compile <$> strOption
         (  short 'x'
         <> long "exclude"
@@ -65,7 +65,7 @@ parseOptions cwd excludes = Options
         (  short 'p'
         <> long "profile"
         <> metavar "NAME"
-        <> value "default"
+        <> value cProfile
         <> help "Use the named profile"
         )
     <*> switch
@@ -77,7 +77,7 @@ parseOptions cwd excludes = Options
         (  short 't'
         <> long "throttle"
         <> metavar "N"
-        <> value 0
+        <> value cThrottle
         <> help "Throttle HTTP to N KB/s"
         )
     <*> switch
