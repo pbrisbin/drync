@@ -2,41 +2,22 @@
 
 ![drynk](images/boozetime.gif)
 
-Sync a local directory with Google Drive. Very beta. Beware.
-
-```
-Usage: drync [DIRECTORY] [-x|--exclude PATTERN] [--delete-local]
-             [--delete-remote] [-p|--profile NAME] [-r|--refresh-oauth]
-             [-t|--throttle N] [-s|--silent] [-d|--debug]
-  Sync a local directory with Google Drive
-
-Available options:
-  -h,--help                Show this help text
-  -x,--exclude PATTERN     Exclude files and folders matching PATTERN
-  --delete-local           Delete files which exist only locally
-  --delete-remote          Delete files which exist only on your Drive
-  -p,--profile NAME        Use the named profile
-  -r,--refresh-oauth       Ignore cached OAuth2 credentials
-  -t,--throttle N          Throttle HTTP to N KB/s
-  -s,--silent              Output nothing beyond errors
-  -d,--debug               Output debugging messages
-```
+Sync a local directory with Google Drive.
 
 ## Installation
 
-For now, `drync` is packaged as a binary distribution and only for 64 bit Arch.
+`drync` is packaged as a static binary suitable for 64 bit Arch Linux.
 
 ```
 % curl -O https://github.com/pbrisbin/drync/blob/master/pkg/PKGBUILD
 % makepkg -s -c -i
+% man 1 drync
 % drync --help
 ```
 
 ## Development Installation and Usage
 
-This should work on any platform with a Haskell installation.
-
-- Use the [Google Developers Console][console] to create a project
+- Create a project in the [Google Developers Console][console]
 - Enable OAuth2 for the project
 - Enable the Drive API for the project
 - Create `src/Drync/Client.hs` with the following contents:
