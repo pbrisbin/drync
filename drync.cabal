@@ -14,6 +14,7 @@ Library
   HS-Source-Dirs:       src
   GHC-Options:          -Wall -static
   Exposed-Modules:      Drync.Client
+                      , Drync.Config
                       , Drync.Missing
                       , Drync.Options
                       , Drync.Sync
@@ -24,6 +25,7 @@ Library
                       , Glob
                       , ascii-progress
                       , bytestring
+                      , configurator
                       , conduit
                       , directory
                       , filepath
