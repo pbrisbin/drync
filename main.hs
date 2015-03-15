@@ -13,7 +13,7 @@ import Drync.Sync
 
 main :: IO ()
 main = do
-    options <- getOptions
+    options <- getOptions =<< excludesFile
 
     mfile <- if oRefresh options
         then return Nothing
@@ -35,3 +35,8 @@ tokenFile :: String -> IO FilePath
 tokenFile profile = do
     cdir <- getUserCacheDir appName
     return $ cdir </> profile <.> "token"
+
+excludesFile :: IO FilePath
+excludesFile = do
+    cdir <- getUserConfigDir appName
+    return $ cdir </> "exclude"

@@ -9,7 +9,7 @@ module Drync.Options
 import Options.Applicative
 
 import Control.Monad (unless, when)
-import System.Directory (getCurrentDirectory)
+import System.Directory (doesFileExist, getCurrentDirectory)
 import System.FilePath.Glob (Pattern, compile)
 import System.IO (hPutStrLn, stderr)
 
@@ -31,26 +31,27 @@ message options = unless (oSilent options) . putStrLn
 messageDebug :: Options -> String -> IO ()
 messageDebug options = when (oDebug options) . hPutStrLn stderr
 
-getOptions :: IO Options
-getOptions = do
+getOptions :: FilePath -> IO Options
+getOptions fp = do
     cwd <- getCurrentDirectory
+    excludes <- readExcludes fp
 
-    execParser $ parseOptions cwd `withInfo`
+    execParser $ parseOptions cwd excludes `withInfo`
         "Sync a local directory with Google Drive"
 
   where
     withInfo :: Parser a -> String -> ParserInfo a
     withInfo opts desc = info (helper <*> opts) $ progDesc desc
 
-parseOptions :: FilePath -> Parser Options
-parseOptions cwd = Options
+parseOptions :: FilePath -> [Pattern] -> Parser Options
+parseOptions cwd excludes = Options
     <$> argument str (metavar "DIRECTORY" <> value cwd)
-    <*> many (compile <$> strOption
+    <*> fmap (excludes ++) (many (compile <$> strOption
         (  short 'x'
         <> long "exclude"
         <> metavar "PATTERN"
         <> help "Exclude files and folders matching PATTERN"
-        ))
+        )))
     <*> switch
         (  long "delete-local"
         <> help "Delete files which exist only locally"
@@ -88,3 +89,11 @@ parseOptions cwd = Options
         <> long "debug"
         <> help "Output debugging messages"
         )
+
+readExcludes :: FilePath -> IO [Pattern]
+readExcludes fp = do
+    exists <- doesFileExist fp
+
+    if exists
+        then map compile . lines <$> readFile fp
+        else return []
