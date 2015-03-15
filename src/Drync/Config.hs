@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Drync.Config
     ( Config(..)
     , readConfig

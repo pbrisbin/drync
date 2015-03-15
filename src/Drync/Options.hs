@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 module Drync.Options
     ( Options(..)
     , message
