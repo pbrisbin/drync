@@ -9,6 +9,7 @@ module Drync.Options
 import Options.Applicative
 
 import Control.Monad (unless, when)
+import Data.List (isPrefixOf)
 import System.Directory (doesFileExist, getCurrentDirectory)
 import System.FilePath.Glob (Pattern, compile)
 import System.IO (hPutStrLn, stderr)
@@ -93,7 +94,9 @@ parseOptions cwd excludes = Options
 readExcludes :: FilePath -> IO [Pattern]
 readExcludes fp = do
     exists <- doesFileExist fp
+    content <- if exists then readFile fp else return ""
 
-    if exists
-        then map compile . lines <$> readFile fp
-        else return []
+    return $ map compile $ filter (not . comment) $ lines content
+
+  where
+    comment = ("#" `isPrefixOf`)
