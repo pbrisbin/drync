@@ -1,4 +1,4 @@
-# drync 1 "November 2014" drync "User Manuals"
+# drync 1 "March 2015" drync "User Manuals"
 
 ## SYNOPSIS
 
@@ -55,6 +55,28 @@ Sync a local directory with Google Drive
 
 *$XDG_CACHE_HOME/drync/$name.token*
   Location of cached OAuth2 tokens for profile named *$name*.
+
+*$XDG_CACHE_HOME/drync/config*
+  Location of config file. See *CONFIG FILE FORMAT*.
+
+*$XDG_CACHE_HOME/drync/exclude*
+  Location of exclude file. See *EXLUDE FILE FORMAT*.
+
+## CONFIG FILE FORMAT
+
+A minimal complete example:
+
+    sync_from = "$(HOME)/drive"
+    profile = "default"
+    throttle = 1000
+
+## EXCLUDE FILE FORMAT
+
+One pattern per line, following the same rules as arguments to `--exclude`.
+
+Lines beginning with `#` are ignored. Blank lines result in empty patterns but
+the empty pattern only matches the empty filename, so these can be considered
+ignored as well.
 
 ## AUTHOR
 
