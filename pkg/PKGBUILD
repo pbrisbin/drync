@@ -6,7 +6,7 @@ pkgdesc="Google Drive sync tool"
 arch=('x86_64')
 url="https://github.com/pbrisbin/$pkgname"
 license=('MIT')
-source=("http://source.pbrisbin.com/$pkgname-$pkgver.tar.gz")
+source=("http://files.pbrisbin.com/src/$pkgname-$pkgver.tar.gz")
 depends=(zlib gmp libffi)
 
 package() {
