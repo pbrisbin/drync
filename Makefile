@@ -25,7 +25,7 @@ package: build man
 dist: package
 	s3cmd --quiet --acl-public \
 	  put pkg/$(NAME)-$(VERSION).tar.gz \
-	  s3://source.pbrisbin.com/$(NAME)-$(VERSION).tar.gz
+	  s3://files.pbrisbin.com/src/$(NAME)-$(VERSION).tar.gz
 
 distclean:
 	rm -f pkg/$(NAME)-$(VERSION).tar.gz
